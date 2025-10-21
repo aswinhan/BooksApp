@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Src/">
+    <Project Path="src/BooksApp.Host/BooksApp.Host.csproj" />
+  </Folder>
+  <Folder Name="/Src/Common/">
+    <Project Path="src/Common/Modules.Common.API/Modules.Common.API.csproj" />
+    <Project Path="src/Common/Modules.Common.Application/Modules.Common.Application.csproj" />
+    <Project Path="src/Common/Modules.Common.Domain/Modules.Common.Domain.csproj" />
+    <Project Path="src/Common/Modules.Common.Infrastructure/Modules.Common.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Src/Modules/" />
+  <Folder Name="/Src/Modules/Users/">
+    <Project Path="src/Modules/Users/Modules.Users.Domain/Modules.Users.Domain.csproj" />
+    <Project Path="src/Modules/Users/Modules.Users.Features/Modules.Users.Features.csproj" />
+    <Project Path="src/Modules/Users/Modules.Users.Infrastructure/Modules.Users.Infrastructure.csproj" />
+    <Project Path="src/Modules/Users/Modules.Users.PublicApi/Modules.Users.PublicApi.csproj" />
+  </Folder>
+</Solution>
