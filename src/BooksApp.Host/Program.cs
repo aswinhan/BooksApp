@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore; // Needed for MigrateAsync
+using Microsoft.Extensions.DependencyInjection;
+using Modules.Catalog.Features;
 using Modules.Common.API;
 using Modules.Common.API.Extensions; // For UseModuleMiddlewares
 using Modules.Common.Infrastructure;
@@ -33,11 +35,13 @@ try // Wrap startup in try/catch for bootstrap logging
         // List module activity names for OpenTelemetry tracing
         [
             // Add other module names here later (e.g., CatalogModuleRegistration.ActivityModuleName)
-             "Users" // Placeholder name - we'll define a constant later
+             "Users", // Placeholder name - we'll define a constant later
+             "Catalog" 
         ]);
 
     // 3. Add Module Services (This registers everything for the Users module)
     services.AddUsersModule(configuration);
+    services.AddCatalogModule(configuration);
     // Add other modules here later:
     // services.AddCatalogModule(configuration);
     // services.AddOrdersModule(configuration);

@@ -9,6 +9,12 @@
     <Project Path="src/Common/Modules.Common.Infrastructure/Modules.Common.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Src/Modules/" />
+  <Folder Name="/Src/Modules/Catalog/">
+    <Project Path="src/Modules/Catalog/Modules.Catalog.Domain/Modules.Catalog.Domain.csproj" Id="6366c972-7f85-4383-aedb-07c2431cddc5" />
+    <Project Path="src/Modules/Catalog/Modules.Catalog.Features/Modules.Catalog.Features.csproj" Id="d6adfd05-f17e-4d8c-b18e-d50f71a31d04" />
+    <Project Path="src/Modules/Catalog/Modules.Catalog.Infrastructure/Modules.Catalog.Infrastructure.csproj" Id="90d1bd39-2c7c-424a-924d-79cf4e7cc9be" />
+    <Project Path="src/Modules/Catalog/Modules.Catalog.PublicApi/Modules.Catalog.PublicApi.csproj" Id="718213f6-bd82-47c5-8cb9-56e7635a68d0" />
+  </Folder>
   <Folder Name="/Src/Modules/Users/">
     <Project Path="src/Modules/Users/Modules.Users.Domain/Modules.Users.Domain.csproj" />
     <Project Path="src/Modules/Users/Modules.Users.Features/Modules.Users.Features.csproj" />

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Common\Modules.Common.API\Modules.Common.API.csproj" />
+		<ProjectReference Include="..\..\..\Common\Modules.Common.Application\Modules.Common.Application.csproj" />
+		<ProjectReference Include="..\Modules.Catalog.Domain\Modules.Catalog.Domain.csproj" />
+		<ProjectReference Include="..\Modules.Catalog.Infrastructure\Modules.Catalog.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules.Catalog.PublicApi\Modules.Catalog.PublicApi.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Books\Authors\" />
+	</ItemGroup>
+
+</Project>
