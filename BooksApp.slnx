@@ -9,11 +9,23 @@
     <Project Path="src/Common/Modules.Common.Infrastructure/Modules.Common.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Src/Modules/" />
+  <Folder Name="/Src/Modules/Blog/">
+    <Project Path="src/Modules/Blog/Modules.Blog.Domain/Modules.Blog.Domain.csproj" Id="f5b1787c-5aae-4ce6-b602-76f9e889025b" />
+    <Project Path="src/Modules/Blog/Modules.Blog.Features/Modules.Blog.Features.csproj" Id="3995052c-e418-47f1-af5b-5225ffde3e76" />
+    <Project Path="src/Modules/Blog/Modules.Blog.Infrastructure/Modules.Blog.Infrastructure.csproj" Id="f626f09a-6690-48fb-b8c9-616839614127" />
+    <Project Path="src/Modules/Blog/Modules.Blog.PublicApi/Modules.Blog.PublicApi.csproj" Id="a0ae83ea-ed1b-4af1-bb45-d6ca2cfecfdb" />
+  </Folder>
   <Folder Name="/Src/Modules/Catalog/">
     <Project Path="src/Modules/Catalog/Modules.Catalog.Domain/Modules.Catalog.Domain.csproj" Id="6366c972-7f85-4383-aedb-07c2431cddc5" />
     <Project Path="src/Modules/Catalog/Modules.Catalog.Features/Modules.Catalog.Features.csproj" Id="d6adfd05-f17e-4d8c-b18e-d50f71a31d04" />
     <Project Path="src/Modules/Catalog/Modules.Catalog.Infrastructure/Modules.Catalog.Infrastructure.csproj" Id="90d1bd39-2c7c-424a-924d-79cf4e7cc9be" />
     <Project Path="src/Modules/Catalog/Modules.Catalog.PublicApi/Modules.Catalog.PublicApi.csproj" Id="718213f6-bd82-47c5-8cb9-56e7635a68d0" />
+  </Folder>
+  <Folder Name="/Src/Modules/Orders/">
+    <Project Path="src/Modules/Orders/Modules.Orders.Domain/Modules.Orders.Domain.csproj" Id="f3b60dbe-adb3-4d00-bea8-fa29c65e98a9" />
+    <Project Path="src/Modules/Orders/Modules.Orders.Features/Modules.Orders.Features.csproj" Id="47f63848-bb7f-444d-9c40-25b367d17879" />
+    <Project Path="src/Modules/Orders/Modules.Orders.Infrastructure/Modules.Orders.Infrastructure.csproj" Id="61802607-7f53-468b-9b67-616310fddd07" />
+    <Project Path="src/Modules/Orders/Modules.Orders.PublicApi/Modules.Orders.PublicApi.csproj" Id="a9a7a538-cbe5-4d84-b55b-5b2b4659f967" />
   </Folder>
   <Folder Name="/Src/Modules/Users/">
     <Project Path="src/Modules/Users/Modules.Users.Domain/Modules.Users.Domain.csproj" />

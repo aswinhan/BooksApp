@@ -5,8 +5,10 @@ using Modules.Common.API;
 using Modules.Common.API.Extensions; // For UseModuleMiddlewares
 using Modules.Common.Infrastructure;
 using Modules.Common.Infrastructure.Database; // For MigrateModuleDatabasesAsync
+using Modules.Orders.Features;
 using Modules.Users.Features;
 using Serilog; // Required for static Log class if using bootstrap logger pattern
+using StackExchange.Redis;
 
 // --- Bootstrap Logger (Optional but Recommended) ---
 // Configure Serilog for early logging before the host builds
@@ -36,15 +38,20 @@ try // Wrap startup in try/catch for bootstrap logging
         [
             // Add other module names here later (e.g., CatalogModuleRegistration.ActivityModuleName)
              "Users", // Placeholder name - we'll define a constant later
-             "Catalog" 
+             "Catalog",
+             "Orders"
         ]);
+
+    // --- Add Redis Connection ---
+    // Register Redis connection multiplexer as a singleton
+    services.AddSingleton<IConnectionMultiplexer>(sp =>
+        ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection")
+            ?? throw new InvalidOperationException("Redis connection string 'RedisConnection' not found.")));
 
     // 3. Add Module Services (This registers everything for the Users module)
     services.AddUsersModule(configuration);
     services.AddCatalogModule(configuration);
-    // Add other modules here later:
-    // services.AddCatalogModule(configuration);
-    // services.AddOrdersModule(configuration);
+    services.AddOrdersModule(configuration);
 
     // --- Build the App ---
     var app = builder.Build();
