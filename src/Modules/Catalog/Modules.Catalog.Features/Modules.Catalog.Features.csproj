@@ -22,8 +22,4 @@
 		<ProjectReference Include="..\Modules.Catalog.PublicApi\Modules.Catalog.PublicApi.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Books\Authors\" />
-	</ItemGroup>
-
 </Project>

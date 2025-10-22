@@ -11,6 +11,8 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Modules.Common.Application.Caching;
+using Modules.Common.Infrastructure.Caching;
 
 
 // Put extensions into the global Microsoft namespace for easy discovery
@@ -36,6 +38,9 @@ public static class DependencyInjection
 
         // Register the AuditableInterceptor as a singleton
         services.AddSingleton<Database.AuditableInterceptor>();
+
+        // Register Caching Service
+        services.AddSingleton<ICachingService, RedisCachingService>();
 
 
         return services;

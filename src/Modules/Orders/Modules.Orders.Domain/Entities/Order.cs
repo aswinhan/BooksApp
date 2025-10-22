@@ -1,4 +1,5 @@
 ﻿using Modules.Common.Domain;
+using Modules.Common.Domain.Results;
 using Modules.Orders.Domain.Enums;
 using Modules.Orders.Domain.ValueObjects;
 using System;
@@ -81,6 +82,50 @@ public class Order : IAuditableEntity
     }
 
     // Add methods for Ship(), Deliver(), Cancel() etc. applying status transition rules
+
+    public Result<Success> Ship() // Use Result<> for domain rules
+    {
+        // Rule: Can only ship orders that are 'Processing'
+        if (Status != OrderStatus.Processing)
+        {
+            // Return a domain error
+            return Error.Validation("Orders.InvalidStatusTransition", $"Cannot ship order with status {Status}.");
+        }
+        Status = OrderStatus.Shipped;
+        UpdatedAtUtc = DateTime.UtcNow;
+        return Result.Success; // Indicate success
+    }
+
+    public Result<Success> Deliver()
+    {
+        // Rule: Can only deliver orders that are 'Shipped'
+        if (Status != OrderStatus.Shipped)
+        {
+            return Error.Validation("Orders.InvalidStatusTransition", $"Cannot deliver order with status {Status}.");
+        }
+        Status = OrderStatus.Delivered;
+        UpdatedAtUtc = DateTime.UtcNow;
+        return Result.Success;
+    }
+
+    public Result<Success> Cancel()
+    {
+        // Rule: Cannot cancel orders that are already 'Delivered' or 'Shipped' (adjust as needed)
+        if (Status == OrderStatus.Delivered || Status == OrderStatus.Shipped)
+        {
+            return Error.Validation("Orders.InvalidStatusTransition", $"Cannot cancel order with status {Status}.");
+        }
+        // Rule: Cannot cancel if already cancelled
+        if (Status == OrderStatus.Cancelled)
+        {
+            return Result.Success; // Idempotent - already cancelled
+        }
+
+        Status = OrderStatus.Cancelled;
+        UpdatedAtUtc = DateTime.UtcNow;
+        // Consider if stock needs to be increased via an event here
+        return Result.Success;
+    }
 
 
     /// <summary>
