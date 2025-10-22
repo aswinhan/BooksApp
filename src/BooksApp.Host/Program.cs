@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore; // Needed for MigrateAsync
-using Microsoft.Extensions.DependencyInjection;
+using Modules.Blog.Features;
 using Modules.Catalog.Features;
 using Modules.Common.API;
 using Modules.Common.API.Extensions; // For UseModuleMiddlewares
@@ -39,7 +39,8 @@ try // Wrap startup in try/catch for bootstrap logging
             // Add other module names here later (e.g., CatalogModuleRegistration.ActivityModuleName)
              "Users", // Placeholder name - we'll define a constant later
              "Catalog",
-             "Orders"
+             "Orders",
+             "Blog"
         ]);
 
     // --- Add Redis Connection ---
@@ -52,6 +53,7 @@ try // Wrap startup in try/catch for bootstrap logging
     services.AddUsersModule(configuration);
     services.AddCatalogModule(configuration);
     services.AddOrdersModule(configuration);
+    services.AddBlogModule(configuration);
 
     // --- Build the App ---
     var app = builder.Build();

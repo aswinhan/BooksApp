@@ -1,9 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Common\Modules.Common.API\Modules.Common.API.csproj" />
+		<ProjectReference Include="..\..\..\Common\Modules.Common.Application\Modules.Common.Application.csproj" />
+		<ProjectReference Include="..\Modules.Blog.Domain\Modules.Blog.Domain.csproj" />
+		<ProjectReference Include="..\Modules.Blog.Infrastructure\Modules.Blog.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules.Blog.PublicApi\Modules.Blog.PublicApi.csproj" />
+	</ItemGroup>
 
 </Project>
