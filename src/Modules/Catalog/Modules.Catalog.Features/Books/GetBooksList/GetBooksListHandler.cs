@@ -1,42 +1,55 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Modules.Catalog.Features.Books.Shared.Responses; // Use BookListResponse
-using Modules.Catalog.Infrastructure.Database; // Use CatalogDbContext
-using Modules.Common.Domain.Handlers; // Use IHandler
-using Modules.Common.Domain.Results;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-// We will return the list directly for now, not Result<>
-// using Modules.Common.Domain.Results;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Modules.Catalog.Features.Books.Shared.Responses;
+using Modules.Catalog.Infrastructure.Database;
+using Modules.Common.Domain.Handlers;
+using Modules.Common.Domain.Results;
+// Add a new Paginated Response DTO (define below)
+using Modules.Common.Application.Pagination; // Assuming PaginatedResponse lives in Common
 
 namespace Modules.Catalog.Features.Books.GetBooksList;
 
-// Interface defines the contract
+// Update the interface to return the paginated response
 internal interface IGetBooksListHandler : IHandler
 {
-    // Adjusting return type for simplicity now, refactor later
-    Task<Result<List<BookListResponse>>> HandleAsync(GetBooksListQuery query, CancellationToken cancellationToken);
+    // Add pageNumber and pageSize parameters
+    Task<Result<PaginatedResponse<BookListResponse>>> HandleAsync(int pageNumber, int pageSize, CancellationToken cancellationToken);
 }
 
-// Implementation handles the query
 internal sealed class GetBooksListHandler(
-    CatalogDbContext dbContext, // Inject DbContext for reading
+    CatalogDbContext dbContext,
     ILogger<GetBooksListHandler> logger)
     : IGetBooksListHandler
 {
-    // Adjusting return type
-    public async Task<Result<List<BookListResponse>>> HandleAsync(GetBooksListQuery query, CancellationToken cancellationToken)
+    // Update method signature
+    public async Task<Result<PaginatedResponse<BookListResponse>>> HandleAsync(
+        int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Retrieving list of books.");
+        logger.LogInformation("Retrieving books list - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
 
-        try // Optional: Add try/catch for unexpected database errors
+        // Ensure valid pagination parameters
+        pageNumber = Math.Max(1, pageNumber);
+        pageSize = Math.Clamp(pageSize, 5, 50); // Min 5, Max 50 items per page
+
+        try
         {
-            var books = await dbContext.Books
+            // Base query (can add filtering later)
+            var query = dbContext.Books
                 .AsNoTracking()
                 .Include(b => b.Author)
-                .OrderBy(b => b.Title)
+                .OrderBy(b => b.Title);
+
+            // Get total count BEFORE applying pagination
+            int totalCount = await query.CountAsync(cancellationToken);
+
+            // Apply pagination
+            var books = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(b => new BookListResponse(
                     b.Id,
                     b.Title,
@@ -46,15 +59,21 @@ internal sealed class GetBooksListHandler(
                 ))
                 .ToListAsync(cancellationToken);
 
-            logger.LogInformation("Retrieved {Count} books.", books.Count);
+            logger.LogInformation("Retrieved {Count} books for page {PageNumber}.", books.Count, pageNumber);
 
-            // Wrap the successful result
-            return books; // Implicit conversion from List<T> to Result<List<T>> works
+            // Create the paginated response object
+            var paginatedResponse = new PaginatedResponse<BookListResponse>(
+                books,
+                totalCount,
+                pageNumber,
+                pageSize
+            );
+
+            return paginatedResponse; // Implicit conversion
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to retrieve books list.");
-            // Return an unexpected error
+            logger.LogError(ex, "Failed to retrieve books list for page {PageNumber}.", pageNumber);
             return Error.Unexpected("Catalog.GetListFailed", "Failed to retrieve book list.");
         }
     }

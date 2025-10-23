@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http; // For Results, IResult
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Modules.Catalog.Features.Books.Shared.Responses;
 using Modules.Catalog.Features.Books.Shared.Routes;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
-
-// using Modules.Common.API.Extensions; // Namespace changed
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Modules.Common.Application.Pagination;
 
 namespace Modules.Catalog.Features.Books.GetBooksList;
 
@@ -19,27 +16,26 @@ public class GetBooksListEndpoint : IApiEndpoint
         app.MapGet(BookRouteConsts.BaseRoute, Handle)
            .AllowAnonymous()
            .WithName("GetBooksList")
-           .Produces<List<BookListResponse>>(StatusCodes.Status200OK)
-           // Add ProducesProblem if the handler can return specific errors
-           .ProducesProblem(StatusCodes.Status500InternalServerError) // For unexpected errors
+           // Update Produces type
+           .Produces<PaginatedResponse<BookListResponse>>(StatusCodes.Status200OK)
+           .ProducesProblem(StatusCodes.Status500InternalServerError)
            .WithTags("Catalog.Books");
     }
 
     private static async Task<IResult> Handle(
-        IGetBooksListHandler handler,
-        CancellationToken cancellationToken)
+    IGetBooksListHandler handler, // Inject the handler
+    CancellationToken cancellationToken,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10)
     {
-        var query = new GetBooksListQuery();
-        var response = await handler.HandleAsync(query, cancellationToken); // Handler now returns Result<>
+        // Pass parameters to the handler
+        var response = await handler.HandleAsync(pageNumber, pageSize, cancellationToken);
 
-        // Check if the handler returned an error
+
         if (response.IsError)
         {
-            // Use ToProblem() to convert the error to an HTTP response
             return response.Errors.ToProblem();
         }
-
-        // Return HTTP 200 OK with the list from the Result's Value
-        return Results.Ok(response.Value);
+        return Results.Ok(response.Value); // Return PaginatedResponse
     }
 }
