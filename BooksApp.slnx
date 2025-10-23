@@ -21,6 +21,9 @@
     <Project Path="src/Modules/Catalog/Modules.Catalog.Infrastructure/Modules.Catalog.Infrastructure.csproj" Id="90d1bd39-2c7c-424a-924d-79cf4e7cc9be" />
     <Project Path="src/Modules/Catalog/Modules.Catalog.PublicApi/Modules.Catalog.PublicApi.csproj" Id="718213f6-bd82-47c5-8cb9-56e7635a68d0" />
   </Folder>
+  <Folder Name="/Src/Modules/Catalog/tests/">
+    <Project Path="src/Modules/Catalog/tests/Modules.Catalog.Tests.Unit/Modules.Catalog.Tests.Unit.csproj" Id="0da6a78b-2643-4e40-9f62-bae92433ccce" />
+  </Folder>
   <Folder Name="/Src/Modules/Orders/">
     <Project Path="src/Modules/Orders/Modules.Orders.Domain/Modules.Orders.Domain.csproj" Id="f3b60dbe-adb3-4d00-bea8-fa29c65e98a9" />
     <Project Path="src/Modules/Orders/Modules.Orders.Features/Modules.Orders.Features.csproj" Id="47f63848-bb7f-444d-9c40-25b367d17879" />

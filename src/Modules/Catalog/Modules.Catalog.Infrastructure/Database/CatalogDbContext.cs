@@ -6,9 +6,9 @@ namespace Modules.Catalog.Infrastructure.Database;
 public class CatalogDbContext(DbContextOptions<CatalogDbContext> options) : DbContext(options)
 {
     // DbSets represent the tables for our entities
-    public DbSet<Book> Books { get; set; } = null!;
-    public DbSet<Author> Authors { get; set; } = null!;
-    public DbSet<Review> Reviews { get; set; } = null!;
+    public virtual DbSet<Book> Books { get; set; } = null!;
+    public virtual DbSet<Author> Authors { get; set; } = null!;
+    public virtual DbSet<Review> Reviews { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
