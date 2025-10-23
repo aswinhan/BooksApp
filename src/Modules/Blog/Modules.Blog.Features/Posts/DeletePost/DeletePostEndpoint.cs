@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Blog.Domain.Policies;
 using Modules.Blog.Features.Posts.Shared.Routes;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
@@ -19,7 +20,7 @@ public class DeletePostEndpoint : IApiEndpoint
         string route = BlogPostRouteConsts.BaseRoute + "/{postId:guid}";
 
         app.MapDelete(route, Handle)
-           .RequireAuthorization() // Add specific admin/author policy later
+           .RequireAuthorization(BlogPostPolicyConsts.ManageAllPostsPolicy)
            .WithName("DeletePost")
            .Produces(StatusCodes.Status204NoContent) // Success
            .ProducesProblem(StatusCodes.Status404NotFound) // Post not found

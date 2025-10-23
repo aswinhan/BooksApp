@@ -1,20 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Modules.Common.Application.Pagination;
+using Modules.Common.Domain.Handlers;
+using Modules.Common.Domain.Results;
+using Modules.Orders.Features.Shared.Responses; // Use OrderSummaryResponse
+using Modules.Orders.Infrastructure.Database; // Use OrdersDbContext
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Modules.Common.Domain.Handlers;
-using Modules.Orders.Features.Shared.Responses; // Use OrderSummaryResponse
-using Modules.Orders.Infrastructure.Database; // Use OrdersDbContext
 
 namespace Modules.Orders.Features.GetMyOrders;
 
 // Interface defines the contract
+// Add pageNumber, pageSize parameters and change return type
 internal interface IGetMyOrdersHandler : IHandler
 {
-    // Adjusting return type for simplicity now
-    Task<List<OrderSummaryResponse>> HandleAsync(string userId, CancellationToken cancellationToken);
+    Task<Result<PaginatedResponse<OrderSummaryResponse>>> HandleAsync(
+        string userId, int pageNumber, int pageSize, CancellationToken cancellationToken);
 }
 
 // Implementation handles the query
@@ -23,27 +26,44 @@ internal sealed class GetMyOrdersHandler(
     ILogger<GetMyOrdersHandler> logger)
     : IGetMyOrdersHandler
 {
-    // Adjusting return type
-    public async Task<List<OrderSummaryResponse>> HandleAsync(string userId, CancellationToken cancellationToken)
+    public async Task<Result<PaginatedResponse<OrderSummaryResponse>>> HandleAsync(
+    string userId, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Retrieving orders for User {UserId}", userId);
+        logger.LogInformation("Retrieving orders for User {UserId} - Page: {PageNumber}, Size: {PageSize}", userId, pageNumber, pageSize);
 
-        var orders = await dbContext.Orders
-            .AsNoTracking()
-            .Where(o => o.UserId == userId) // Filter by the current user
-            .Include(o => o.OrderItems) // Include items to get the count
-            .OrderByDescending(o => o.CreatedAtUtc) // Show newest orders first
-                                                    // Add Skip().Take() here for pagination later
-            .Select(o => new OrderSummaryResponse( // Project directly to the DTO
-                o.Id,
-                o.CreatedAtUtc,
-                o.Status,
-                o.Total,
-                o.OrderItems.Count // Get count from included items
-            ))
-            .ToListAsync(cancellationToken);
+        pageNumber = Math.Max(1, pageNumber);
+        pageSize = Math.Clamp(pageSize, 5, 50);
 
-        logger.LogInformation("Retrieved {Count} orders for User {UserId}", orders.Count, userId);
-        return orders;
+        try
+        {
+            var query = dbContext.Orders
+                .AsNoTracking()
+                .Where(o => o.UserId == userId) // Keep filter
+                .Include(o => o.OrderItems) // Keep include for count
+                .OrderByDescending(o => o.CreatedAtUtc); // Keep sort
+
+            int totalCount = await query.CountAsync(cancellationToken);
+
+            var orders = await query
+                .Skip((pageNumber - 1) * pageSize) // Apply pagination
+                .Take(pageSize) // Apply pagination
+                .Select(o => new OrderSummaryResponse(
+                    o.Id, o.CreatedAtUtc, o.Status, o.Total, o.OrderItems.Count
+                ))
+                .ToListAsync(cancellationToken);
+
+            logger.LogInformation("Retrieved {Count} orders for User {UserId}, page {PageNumber}.", orders.Count, userId, pageNumber);
+
+            var paginatedResponse = new PaginatedResponse<OrderSummaryResponse>(
+                orders, totalCount, pageNumber, pageSize
+            );
+
+            return paginatedResponse;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to retrieve orders list for User {UserId}, page {PageNumber}.", userId, pageNumber);
+            return Error.Unexpected("Orders.GetMyListFailed", "Failed to retrieve order list.");
+        }
     }
 }

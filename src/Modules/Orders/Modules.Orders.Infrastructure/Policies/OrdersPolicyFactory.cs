@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Modules.Common.Infrastructure.Policies;
-// using Modules.Orders.Domain.Policies; // Define if needed later
+using Modules.Orders.Domain.Policies; // Use constants
 using System;
 using System.Collections.Generic;
 
@@ -8,22 +8,26 @@ namespace Modules.Orders.Infrastructure.Policies;
 
 internal sealed class OrdersPolicyFactory : IPolicyFactory
 {
-    public string ModuleName => "Orders"; // Module identifier
+    public string ModuleName => "Orders";
 
     public Dictionary<string, Action<AuthorizationPolicyBuilder>> GetPolicies()
     {
-        // Define policies specific to Orders here if needed later
-        // Example:
-        // return new Dictionary<string, Action<AuthorizationPolicyBuilder>>
-        // {
-        //     [OrderPolicyConsts.ManageOrdersPolicy] = policy =>
-        //         policy.RequireRole("Admin", "OrderManager"),
-        //
-        //     [OrderPolicyConsts.ViewOwnOrderPolicy] = policy =>
-        //         policy.RequireAuthenticatedUser() // Add requirement handler later for owner check
-        // };
+        return new Dictionary<string, Action<AuthorizationPolicyBuilder>>
+        {
+            // Requires EITHER Admin/Manager role OR the specific orders:manage claim
+            [OrderPolicyConsts.ManageOrdersPolicy] = policy =>
+                 policy.RequireAssertion(context =>
+                     context.User.IsInRole("Admin") ||
+                     context.User.IsInRole("Manager") || // Add Manager role
+                     context.User.HasClaim(c => c.Type == OrderPolicyConsts.ManageOrdersPolicy && c.Value == "true")
+                 ),
 
-        // For now, return empty
-        return new Dictionary<string, Action<AuthorizationPolicyBuilder>>();
+            // Requires EITHER Admin role OR the specific orders:view:all claim
+            [OrderPolicyConsts.ViewAllOrdersPolicy] = policy =>
+                 policy.RequireAssertion(context =>
+                     context.User.IsInRole("Admin") ||
+                     context.User.HasClaim(c => c.Type == OrderPolicyConsts.ViewAllOrdersPolicy && c.Value == "true")
+                 )
+        };
     }
 }

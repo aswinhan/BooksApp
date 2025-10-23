@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Modules.Blog.Features.Posts.Shared.Responses; // Use PostSummaryResponse (to be created)
+using Microsoft.AspNetCore.Mvc; // For [FromQuery]
+using Modules.Blog.Features.Posts.Shared.Responses;
 using Modules.Blog.Features.Posts.Shared.Routes;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
+using Modules.Common.Application.Pagination; // Need PaginatedResponse
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,24 +16,30 @@ public class GetPostsListEndpoint : IApiEndpoint
 {
     public void MapEndpoint(WebApplication app)
     {
-        // GET on the base route for posts
         app.MapGet(BlogPostRouteConsts.BaseRoute, Handle)
-           .AllowAnonymous() // Allow anyone to list posts
+           .AllowAnonymous()
            .WithName("GetPostsList")
-           .Produces<List<PostSummaryResponse>>(StatusCodes.Status200OK)
+           // Update Produces type
+           .Produces<PaginatedResponse<PostSummaryResponse>>(StatusCodes.Status200OK)
+           .ProducesProblem(StatusCodes.Status500InternalServerError)
            .WithTags("Blog.Posts");
     }
 
     private static async Task<IResult> Handle(
+        // Add query parameters
         IGetPostsListHandler handler,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
+        
     {
-        var response = await handler.HandleAsync(cancellationToken);
-        // Assuming handler returns Result<List<PostSummaryResponse>>
+        // Pass parameters to handler
+        var response = await handler.HandleAsync(pageNumber, pageSize, cancellationToken);
+
         if (response.IsError)
         {
             return response.Errors.ToProblem();
         }
-        return Results.Ok(response.Value);
+        return Results.Ok(response.Value); // Return PaginatedResponse
     }
 }

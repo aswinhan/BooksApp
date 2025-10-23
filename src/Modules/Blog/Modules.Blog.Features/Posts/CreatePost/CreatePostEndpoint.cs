@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Blog.Domain.Policies;
 using Modules.Blog.Features.Posts.Shared.Responses;
 using Modules.Blog.Features.Posts.Shared.Routes;
 using Modules.Common.API.Abstractions;
@@ -17,8 +18,7 @@ public class CreatePostEndpoint : IApiEndpoint
     public void MapEndpoint(WebApplication app)
     {
         app.MapPost(BlogPostRouteConsts.CreatePost, Handle)
-           .RequireAuthorization() // Require login to create posts
-                                   // .RequireAuthorization("BlogWritersPolicy") // Or a specific policy later
+           .RequireAuthorization(BlogPostPolicyConsts.ManageAllPostsPolicy)
            .WithName("CreatePost")
            .Produces<PostResponse>(StatusCodes.Status201Created)
            .ProducesValidationProblem()

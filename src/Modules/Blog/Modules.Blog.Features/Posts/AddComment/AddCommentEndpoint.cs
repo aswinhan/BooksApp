@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Blog.Domain.Policies;
 using Modules.Blog.Features.Posts.Shared.Routes;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
@@ -17,7 +18,7 @@ public class AddCommentEndpoint : IApiEndpoint
     public void MapEndpoint(WebApplication app)
     {
         app.MapPost(BlogPostRouteConsts.AddComment, Handle)
-           .RequireAuthorization() // Must be logged in to comment
+           .RequireAuthorization(BlogPostPolicyConsts.AddCommentsPolicy)
            .WithName("AddComment")
            .Produces(StatusCodes.Status204NoContent) // Success, no body needed
            .ProducesValidationProblem()

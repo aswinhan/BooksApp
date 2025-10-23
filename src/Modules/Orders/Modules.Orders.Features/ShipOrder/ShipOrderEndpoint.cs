@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
+using Modules.Orders.Domain.Policies;
 using Modules.Orders.Features.Shared.Routes;
 using System;
 using System.Threading;
@@ -18,7 +19,7 @@ public class ShipOrderEndpoint : IApiEndpoint
         string route = OrderRouteConsts.OrderBaseRoute + "/{orderId:guid}/ship";
 
         app.MapPost(route, Handle) // Use POST for actions/state changes
-           .RequireAuthorization() // Add Admin/Manager policy later
+           .RequireAuthorization(OrderPolicyConsts.ManageOrdersPolicy)
            .WithName("ShipOrder")
            .Produces(StatusCodes.Status204NoContent) // Success
            .ProducesProblem(StatusCodes.Status404NotFound) // Order not found

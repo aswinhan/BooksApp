@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc; // For [FromQuery]
 using Modules.Common.API.Abstractions;
-using Modules.Orders.Features.Shared.Responses; // Use OrderSummaryResponse
-using Modules.Orders.Features.Shared.Routes; // Use OrderRouteConsts
-using System.Collections.Generic; // For List<>
+using Modules.Common.API.Extensions;
+using Modules.Common.Application.Pagination; // Need PaginatedResponse
+using Modules.Orders.Features.Shared.Responses;
+using Modules.Orders.Features.Shared.Routes;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,33 +17,39 @@ public class GetMyOrdersEndpoint : IApiEndpoint
 {
     public void MapEndpoint(WebApplication app)
     {
-        // Define a specific route, e.g., /api/orders/my-orders
         string route = OrderRouteConsts.OrderBaseRoute + "/my-orders";
 
         app.MapGet(route, Handle)
-           .RequireAuthorization() // Must be logged in
+           .RequireAuthorization()
            .WithName("GetMyOrders")
-           .Produces<List<OrderSummaryResponse>>(StatusCodes.Status200OK)
+           // Update Produces type
+           .Produces<PaginatedResponse<OrderSummaryResponse>>(StatusCodes.Status200OK)
            .ProducesProblem(StatusCodes.Status401Unauthorized)
-           .WithTags("Orders"); // Group with other order endpoints
+           .ProducesProblem(StatusCodes.Status500InternalServerError)
+           .WithTags("Orders");
     }
 
     private static async Task<IResult> Handle(
-        IGetMyOrdersHandler handler, // Inject the handler
-        ClaimsPrincipal user, // Inject ClaimsPrincipal for User ID
-        CancellationToken cancellationToken)
+        // Add query parameters
+        IGetMyOrdersHandler handler,
+        ClaimsPrincipal user,
+        CancellationToken cancellationToken,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
-            // Should not happen due to RequireAuthorization
             return Results.Unauthorized();
         }
 
-        var response = await handler.HandleAsync(userId, cancellationToken);
+        // Pass parameters to handler
+        var response = await handler.HandleAsync(userId, pageNumber, pageSize, cancellationToken);
 
-        // Assuming handler returns List<OrderSummaryResponse> directly for now
-        // Refactor later to use Result<> for queries if needed
-        return Results.Ok(response);
+        if (response.IsError)
+        {
+            return response.Errors.ToProblem();
+        }
+        return Results.Ok(response.Value); // Return PaginatedResponse
     }
 }

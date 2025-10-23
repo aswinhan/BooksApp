@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Catalog.Domain.Policies;
 using Modules.Catalog.Features.Books.Shared.Responses;
 using Modules.Catalog.Features.Books.Shared.Routes;
 using Modules.Common.API.Abstractions;
@@ -18,7 +19,7 @@ public class CreateBookEndpoint : IApiEndpoint
     public void MapEndpoint(WebApplication app)
     {
         app.MapPost(BookRouteConsts.CreateBook, Handle)
-           // .RequireAuthorization(CatalogPolicyConsts.ManageProductsPolicy) // Add policy later
+           .RequireAuthorization(CatalogPolicyConsts.ManageCatalogPolicy)
            .WithName("CreateBook")
            .Produces<BookResponse>(StatusCodes.Status201Created)
            .ProducesValidationProblem()

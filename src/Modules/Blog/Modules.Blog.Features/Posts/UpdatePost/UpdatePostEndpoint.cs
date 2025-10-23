@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Blog.Domain.Policies;
 using Modules.Blog.Features.Posts.Shared.Responses; // For PostResponse
 using Modules.Blog.Features.Posts.Shared.Routes;
 using Modules.Common.API.Abstractions;
@@ -22,8 +23,7 @@ public class UpdatePostEndpoint : IApiEndpoint
 
         // Use PUT for updating the entire resource representation (or PATCH for partial)
         app.MapPut(route, Handle)
-           .RequireAuthorization() // Must be logged in
-                                   // .RequireAuthorization("CanEditPostPolicy") // Add specific policy later (e.g., author or admin)
+           .RequireAuthorization(BlogPostPolicyConsts.ManageAllPostsPolicy)
            .WithName("UpdatePost")
            .Produces<PostResponse>(StatusCodes.Status200OK) // Return updated post
            .ProducesValidationProblem()

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
+using Modules.Orders.Domain.Policies;
 using Modules.Orders.Features.Shared.Routes;
 using System;
 using System.Threading;
@@ -17,7 +18,7 @@ public class DeliverOrderEndpoint : IApiEndpoint
         string route = OrderRouteConsts.OrderBaseRoute + "/{orderId:guid}/deliver"; // Specific route
 
         app.MapPost(route, Handle) // Use POST for action
-           .RequireAuthorization() // Add Admin/Manager policy later
+           .RequireAuthorization(OrderPolicyConsts.ManageOrdersPolicy)
            .WithName("DeliverOrder")
            .Produces(StatusCodes.Status204NoContent) // Success
            .ProducesProblem(StatusCodes.Status404NotFound)

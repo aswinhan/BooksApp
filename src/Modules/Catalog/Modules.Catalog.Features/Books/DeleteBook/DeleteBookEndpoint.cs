@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Catalog.Domain.Policies;
 using Modules.Catalog.Features.Books.Shared.Routes;
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
@@ -16,7 +17,7 @@ public class DeleteBookEndpoint : IApiEndpoint
     {
         // Use DELETE on the specific book ID route
         app.MapDelete(BookRouteConsts.GetBookById, Handle) // Reuses GetById route pattern
-           .RequireAuthorization() // Add specific admin/manager policy later
+           .RequireAuthorization(CatalogPolicyConsts.ManageCatalogPolicy)
            .WithName("DeleteBook")
            .Produces(StatusCodes.Status204NoContent) // Success
            .ProducesProblem(StatusCodes.Status404NotFound) // Book not found

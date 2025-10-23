@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Catalog.Domain.Policies;
 using Modules.Catalog.Features.Books.Shared.Responses;
 using Modules.Catalog.Features.Books.Shared.Routes;
 using Modules.Common.API.Abstractions;
@@ -18,7 +19,7 @@ public class UpdateBookEndpoint : IApiEndpoint
     {
         // Use PUT on the specific book ID route
         app.MapPut(BookRouteConsts.GetBookById, Handle) // Reuses GetById route pattern
-           .RequireAuthorization() // Add specific admin/manager policy later
+           .RequireAuthorization(CatalogPolicyConsts.ManageCatalogPolicy)
            .WithName("UpdateBook")
            .Produces<BookResponse>(StatusCodes.Status200OK) // Return updated book
            .ProducesValidationProblem()
