@@ -10,14 +10,11 @@
     <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="StackExchange.Redis" Version="2.9.32" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Modules.Common.Infrastructure\Modules.Common.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Catalog\Modules.Catalog.PublicApi\Modules.Catalog.PublicApi.csproj" />
-    <ProjectReference Include="..\..\Inventory\Modules.Inventory.PublicApi\Modules.Inventory.PublicApi.csproj" />
-    <ProjectReference Include="..\Modules.Orders.Domain\Modules.Orders.Domain.csproj" />
+    <ProjectReference Include="..\Modules.Inventory.Domain\Modules.Inventory.Domain.csproj" />
   </ItemGroup>
 
 </Project>

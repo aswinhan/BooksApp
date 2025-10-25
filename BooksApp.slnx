@@ -24,6 +24,12 @@
   <Folder Name="/Src/Modules/Catalog/tests/">
     <Project Path="src/Modules/Catalog/tests/Modules.Catalog.Tests.Unit/Modules.Catalog.Tests.Unit.csproj" Id="0da6a78b-2643-4e40-9f62-bae92433ccce" />
   </Folder>
+  <Folder Name="/Src/Modules/Inventory/">
+    <Project Path="src/Modules/Inventory/Modules.Inventory.Domain/Modules.Inventory.Domain.csproj" Id="43ade02c-3c9e-40fd-9110-401830a2c1ee" />
+    <Project Path="src/Modules/Inventory/Modules.Inventory.Features/Modules.Inventory.Features.csproj" Id="f5df5d25-3d18-426a-9f2c-168c9f8e27a4" />
+    <Project Path="src/Modules/Inventory/Modules.Inventory.Infrastructure/Modules.Inventory.Infrastructure.csproj" Id="63f80d85-a058-4633-b46c-74956ba9ce27" />
+    <Project Path="src/Modules/Inventory/Modules.Inventory.PublicApi/Modules.Inventory.PublicApi.csproj" Id="2aa376a1-c44f-40ba-a7bc-fbe1058850ad" />
+  </Folder>
   <Folder Name="/Src/Modules/Orders/">
     <Project Path="src/Modules/Orders/Modules.Orders.Domain/Modules.Orders.Domain.csproj" Id="f3b60dbe-adb3-4d00-bea8-fa29c65e98a9" />
     <Project Path="src/Modules/Orders/Modules.Orders.Features/Modules.Orders.Features.csproj" Id="47f63848-bb7f-444d-9c40-25b367d17879" />

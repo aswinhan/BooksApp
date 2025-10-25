@@ -23,19 +23,24 @@ public class GetBooksListEndpoint : IApiEndpoint
     }
 
     private static async Task<IResult> Handle(
-    IGetBooksListHandler handler, // Inject the handler
-    CancellationToken cancellationToken,
-    [FromQuery] int pageNumber = 1,
-    [FromQuery] int pageSize = 10)
+        IGetBooksListHandler handler,
+     CancellationToken cancellationToken,
+     // Add query parameters for filtering and sorting
+     [FromQuery] int pageNumber = 1,
+     [FromQuery] int pageSize = 10,
+     [FromQuery] Guid? authorId = null, // Optional author filter
+     [FromQuery] string? sortBy = null,   // Optional sort field
+     [FromQuery] string? sortOrder = null// Optional sort order ("asc" or "desc")
+     )
     {
-        // Pass parameters to the handler
-        var response = await handler.HandleAsync(pageNumber, pageSize, cancellationToken);
-
+        // Pass all parameters to the handler
+        var response = await handler.HandleAsync(
+            pageNumber, pageSize, authorId, sortBy, sortOrder, cancellationToken);
 
         if (response.IsError)
         {
             return response.Errors.ToProblem();
         }
-        return Results.Ok(response.Value); // Return PaginatedResponse
+        return Results.Ok(response.Value);
     }
 }
