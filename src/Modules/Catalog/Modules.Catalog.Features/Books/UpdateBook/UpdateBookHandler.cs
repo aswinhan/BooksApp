@@ -95,12 +95,20 @@ internal sealed class UpdateBookHandler(
 
 
         var response = new BookResponse(
-             book.Id, book.Title, book.Description, book.Isbn, book.Price, book.AuthorId,
+             book.Id, 
+             book.Title, 
+             book.Description, 
+             book.Isbn, 
+             book.Price, 
+             book.AuthorId,
              authorName, // Use potentially updated author name
              book.Reviews.Select(r => new ReviewResponse(
                  r.Id, r.UserId, r.Comment, r.Rating.Value, r.CreatedAtUtc
              )).ToList(),
-             book.CreatedAtUtc, book.UpdatedAtUtc // UpdatedAtUtc will be set
+             // Fetch stock quantity here if needed for Update response
+             0, // Placeholder for QuantityAvailable - Fetch from Inventory if needed
+             book.CreatedAtUtc, 
+             book.UpdatedAtUtc // UpdatedAtUtc will be set
          );
 
         return response;

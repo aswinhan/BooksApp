@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Modules.Catalog.Domain.Entities;
 using Modules.Catalog.Features.Books.Shared.Responses;
 using Modules.Catalog.Infrastructure.Database;
 // Add a new Paginated Response DTO (define below)

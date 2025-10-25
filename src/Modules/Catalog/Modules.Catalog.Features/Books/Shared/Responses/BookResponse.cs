@@ -13,6 +13,7 @@ public record BookResponse(
     Guid AuthorId,
     string AuthorName, // Include author name for convenience
     List<ReviewResponse> Reviews, // Include reviews
+    int QuantityAvailable,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc
 );

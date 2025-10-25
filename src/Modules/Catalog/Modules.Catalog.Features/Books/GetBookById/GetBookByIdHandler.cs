@@ -9,6 +9,7 @@ using Modules.Catalog.Features.Books.Shared.Responses;
 using Modules.Catalog.Infrastructure.Database; // For CatalogDbContext
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results; // For Result<>, Error
+using Modules.Inventory.PublicApi;
 
 namespace Modules.Catalog.Features.Books.GetBookById;
 
@@ -21,6 +22,7 @@ internal interface IGetBookByIdHandler : IHandler
 // Implementation of the handler
 internal sealed class GetBookByIdHandler(
     CatalogDbContext dbContext, // Inject the DbContext for querying
+    IInventoryModuleApi inventoryApi,
     ILogger<GetBookByIdHandler> logger)
     : IGetBookByIdHandler
 {
@@ -44,6 +46,20 @@ internal sealed class GetBookByIdHandler(
             return Error.NotFound("Catalog.BookNotFound", $"Book with ID {bookId} not found.");
         }
 
+        // --- Get Stock Level ---
+        int quantityAvailable = 0; // Default to 0
+        var stockResult = await inventoryApi.GetStockLevelAsync(bookId, cancellationToken);
+        if (stockResult.IsSuccess && stockResult.Value != null)
+        {
+            quantityAvailable = stockResult.Value.QuantityAvailable;
+        }
+        else if (stockResult.IsError)
+        {
+            // Log warning but continue, maybe stock record doesn't exist yet
+            logger.LogWarning("Could not retrieve stock level for Book {BookId}: {Error}", bookId, stockResult.FirstError.Code);
+        }
+        // --- End Get Stock Level ---
+
         // Map the Book entity and its related data to the response DTO
         var response = new BookResponse(
             book.Id,
@@ -60,6 +76,7 @@ internal sealed class GetBookByIdHandler(
                 r.Rating.Value, // Get value from Rating VO
                 r.CreatedAtUtc
             )).ToList(),
+            quantityAvailable,
             book.CreatedAtUtc,
             book.UpdatedAtUtc
         );

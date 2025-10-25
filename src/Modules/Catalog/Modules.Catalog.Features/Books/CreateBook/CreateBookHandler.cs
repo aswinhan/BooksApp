@@ -77,6 +77,7 @@ internal sealed class CreateBookHandler(
             book.AuthorId,
             author?.Name ?? "Unknown Author", // Handle if author somehow not found
             [], // No reviews on creation
+            0, // QuantityAvailable (required by BookResponse)
             book.CreatedAtUtc,
             book.UpdatedAtUtc
         );

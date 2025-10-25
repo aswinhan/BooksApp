@@ -1,16 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // Required for transaction
+﻿using Microsoft.EntityFrameworkCore; // Required for transaction
 using Microsoft.Extensions.Logging;
 using Modules.Catalog.PublicApi; // Required to get book details
 using Modules.Common.Domain.Events; // Required for IEventPublisher
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results;
+using Modules.Inventory.PublicApi;
+using Modules.Inventory.PublicApi.Contracts;
 using Modules.Orders.Domain.Abstractions; // Required for ICartService
 using Modules.Orders.Domain.Entities; // Required for Order, OrderItem
 using Modules.Orders.Infrastructure.Database; // Required for OrdersDbContext
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Modules.Orders.Features.Checkout;
 
@@ -26,6 +28,7 @@ internal sealed class CheckoutHandler(
     ICartService cartService,
     ICatalogModuleApi catalogApi,
     OrdersDbContext dbContext, // Inject DbContext for aggregate operations & transaction
+    IInventoryModuleApi inventoryApi,
     IEventPublisher eventPublisher, // Inject publisher for events
     ILogger<CheckoutHandler> logger)
     : ICheckoutHandler
@@ -51,6 +54,21 @@ internal sealed class CheckoutHandler(
 
         try
         {
+            // --- Check Stock BEFORE Creating Order ---
+            var stockRequestItems = cart.Items.Select(item =>
+                new StockAdjustmentItem(item.BookId, item.Quantity)).ToList();
+            var stockCheckRequest = new StockAdjustmentRequest(stockRequestItems);
+
+            var stockCheckResult = await inventoryApi.CheckStockAsync(stockCheckRequest, cancellationToken);
+            if (stockCheckResult.IsError)
+            {
+                logger.LogWarning("Checkout failed for User {UserId}: Stock check failed.", userId);
+                await transaction.RollbackAsync(cancellationToken); // Rollback immediately
+                // Return the specific stock errors (e.g., insufficient stock)
+                return stockCheckResult.Errors!;
+            }
+            // --- End Stock Check ---
+
             // 2. Create Order Aggregate Root
             var order = new Order(
                 Guid.NewGuid(),
@@ -76,6 +94,19 @@ internal sealed class CheckoutHandler(
 
             // 5. Save Order to Database (part of transaction)
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // --- Decrease Stock AFTER Saving Order (within same transaction) ---
+            var decreaseStockRequest = new StockAdjustmentRequest(stockRequestItems); // Same items as check
+            var decreaseResult = await inventoryApi.DecreaseStockAsync(decreaseStockRequest, cancellationToken);
+            if (decreaseResult.IsError)
+            {
+                // This *shouldn't* happen if CheckStock passed, but handle defensively
+                logger.LogError("Checkout failed for User {UserId}: Stock decrease failed after order save. Rolling back.", userId);
+                await transaction.RollbackAsync(cancellationToken);
+                return decreaseResult.Errors!; // Return inventory error
+            }
+            // --- End Decrease Stock ---
+
 
             // 6. Clear Cart (only after successful save)
             await cartService.ClearCartAsync(userId);
