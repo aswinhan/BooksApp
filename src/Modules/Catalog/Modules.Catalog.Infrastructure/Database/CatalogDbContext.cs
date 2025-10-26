@@ -9,6 +9,7 @@ public class CatalogDbContext(DbContextOptions<CatalogDbContext> options) : DbCo
     public virtual DbSet<Book> Books { get; set; } = null!;
     public virtual DbSet<Author> Authors { get; set; } = null!;
     public virtual DbSet<Review> Reviews { get; set; } = null!;
+    public virtual DbSet<Category> Categories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

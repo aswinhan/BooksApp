@@ -1,11 +1,13 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Modules.Blog.Infrastructure.Database;
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results;
+using Modules.Users.Domain.Users;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Modules.Blog.Features.Posts.DeletePost;
 
@@ -16,6 +18,7 @@ internal interface IDeletePostHandler : IHandler
 
 internal sealed class DeletePostHandler(
     BlogDbContext dbContext,
+    UserManager<User> userManager,
     ILogger<DeletePostHandler> logger)
     : IDeletePostHandler
 {
@@ -36,7 +39,8 @@ internal sealed class DeletePostHandler(
 
         // 2. Authorization Check (Example: Only author or Admin can delete)
         // You'll need a way to check if userId belongs to an Admin role here
-        bool isAdmin = false; // Replace with actual role check logic later
+        var user = await userManager.FindByIdAsync(userId); // Find the user making the request
+        bool isAdmin = user != null && await userManager.IsInRoleAsync(user, "Admin"); // Check if user is in Admin role
         if (post.AuthorId != userId && !isAdmin)
         {
             logger.LogWarning("Delete post failed: User {UserId} is not authorized to delete Post {PostId}.", userId, postId);

@@ -8,5 +8,6 @@ public record UpdateBookRequest(
     string? Description,
     string Isbn,
     decimal Price,
-    Guid AuthorId // Allow changing the author
+    Guid AuthorId, // Allow changing the author
+    Guid CategoryId
 );

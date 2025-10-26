@@ -14,17 +14,15 @@ internal sealed class CatalogPolicyFactory : IPolicyFactory
     {
         return new Dictionary<string, Action<AuthorizationPolicyBuilder>>
         {
+            // --- MODIFIED POLICY ---
             // Policy: ManageCatalogPolicy
-            // Requires EITHER the "Admin" role OR the specific "catalog:manage" claim
+            // Now requires ONLY the "Admin" role.
             [CatalogPolicyConsts.ManageCatalogPolicy] = policy =>
-                policy.RequireAssertion(context =>
-                    context.User.IsInRole("Admin") || // Check for Admin role
-                    context.User.HasClaim(c => c.Type == CatalogPolicyConsts.ManageCatalogPolicy && c.Value == "true") // Check for specific claim
-                )
-            // Alternative: Just require the claim
-            // policy.RequireClaim(CatalogPolicyConsts.ManageCatalogPolicy, "true")
+                policy.RequireRole("Admin") // Directly require the Admin role
 
-            // Add Read policy if needed (e.g., policy.RequireAuthenticatedUser())
+            // You could add other policies here later if needed, e.g.:
+            // [CatalogPolicyConsts.ReadCatalogPolicy] = policy =>
+            //      policy.RequireAuthenticatedUser() // Example: Any logged-in user can read
         };
     }
 }

@@ -21,6 +21,10 @@ internal interface IGetBooksListHandler : IHandler
         int pageNumber,
         int pageSize,
         Guid? authorId, // Optional Author ID filter
+        Guid? categoryId, // <-- ADD CategoryId
+        decimal? minPrice, // <-- ADD MinPrice
+        decimal? maxPrice, // <-- ADD MaxPrice
+        string? searchQuery, // <-- ADD search parameter
         string? sortBy, // Optional sort field (e.g., "title", "price")
         string? sortOrder, // Optional sort order ("asc", "desc")
         CancellationToken cancellationToken);
@@ -36,13 +40,17 @@ internal sealed class GetBooksListHandler(
         int pageNumber,
         int pageSize,
         Guid? authorId, // Accept authorId
+        Guid? categoryId,
+        decimal? minPrice,
+        decimal? maxPrice,
+        string? searchQuery,
         string? sortBy, // Accept sortBy
         string? sortOrder, // Accept sortOrder
         CancellationToken cancellationToken)
     {
         logger.LogInformation(
-        "Retrieving books list - Page: {PageNumber}, Size: {PageSize}, AuthorId: {AuthorId}, SortBy: {SortBy}, SortOrder: {SortOrder}",
-        pageNumber, pageSize, authorId, sortBy, sortOrder);
+        "Retrieving books list - Page: {Page}, Size: {Size}, Author: {Author}, Category: {Category}, Price: {Min}-{Max}, Sort: {SortBy} {SortOrder}",
+            pageNumber, pageSize, authorId, categoryId, minPrice, maxPrice, sortBy, sortOrder);
 
         // Ensure valid pagination parameters
         pageNumber = Math.Max(1, pageNumber);
@@ -60,11 +68,34 @@ internal sealed class GetBooksListHandler(
             {
                 query = query.Where(b => b.AuthorId == authorId.Value);
             }
-            // Add other filters here later (e.g., Category)
-            // if (categoryId.HasValue)
-            // {
-            //     query = query.Where(b => b.CategoryId == categoryId.Value);
-            // }
+            if (categoryId.HasValue) // <-- ADD Category Filter
+            {
+                query = query.Where(b => b.CategoryId == categoryId.Value);
+            }
+            if (minPrice.HasValue) // <-- ADD Min Price Filter
+            {
+                query = query.Where(b => b.Price >= minPrice.Value);
+            }
+            if (maxPrice.HasValue) // <-- ADD Max Price Filter
+            {
+                query = query.Where(b => b.Price <= maxPrice.Value);
+            }
+
+            // ---ADD Search Filter ---
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                // Use ILike for case-insensitive search (PostgreSQL specific)
+                // Use Contains for case-sensitive search or if not using PostgreSQL
+                string searchTerm = $"%{searchQuery.Trim()}%"; // Add wildcards
+                query = query.Where(b => EF.Functions.ILike(b.Title, searchTerm) ||
+                                         EF.Functions.ILike(b.Author.Name, searchTerm) ||
+                                         EF.Functions.ILike(b.Isbn, searchTerm));
+                // Alternative using Contains (case-sensitive by default):
+                // query = query.Where(b => b.Title.Contains(searchQuery) ||
+                //                          b.Author.Name.Contains(searchQuery) ||
+                //                          b.Isbn.Contains(searchQuery));
+            }
+            // --- End Search Filter ---
 
             // --- Apply Sorting ---
             // Determine sort direction (default to ascending)

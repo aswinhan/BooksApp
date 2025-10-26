@@ -17,6 +17,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Common\Modules.Common.API\Modules.Common.API.csproj" />
 		<ProjectReference Include="..\..\..\Common\Modules.Common.Application\Modules.Common.Application.csproj" />
+		<ProjectReference Include="..\..\Users\Modules.Users.Domain\Modules.Users.Domain.csproj" />
 		<ProjectReference Include="..\Modules.Blog.Domain\Modules.Blog.Domain.csproj" />
 		<ProjectReference Include="..\Modules.Blog.Infrastructure\Modules.Blog.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules.Blog.PublicApi\Modules.Blog.PublicApi.csproj" />

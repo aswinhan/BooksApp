@@ -23,7 +23,7 @@ public class UpdatePostEndpoint : IApiEndpoint
 
         // Use PUT for updating the entire resource representation (or PATCH for partial)
         app.MapPut(route, Handle)
-           .RequireAuthorization(BlogPostPolicyConsts.ManageAllPostsPolicy)
+           .RequireAuthorization()
            .WithName("UpdatePost")
            .Produces<PostResponse>(StatusCodes.Status200OK) // Return updated post
            .ProducesValidationProblem()

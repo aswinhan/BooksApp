@@ -23,5 +23,8 @@ public class UpdateBookRequestValidator : AbstractValidator<UpdateBookRequest>
 
         RuleFor(x => x.AuthorId)
             .NotEmpty().WithMessage("AuthorId is required.");
+
+        RuleFor(x => x.CategoryId)
+            .NotEmpty().WithMessage("CategoryId is required.");
     }
 }

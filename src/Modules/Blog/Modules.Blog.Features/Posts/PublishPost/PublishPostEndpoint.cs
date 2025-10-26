@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Blog.Domain.Policies;
 using Modules.Blog.Features.Posts.Shared.Routes; // For route constants
 using Modules.Common.API.Abstractions;
 using Modules.Common.API.Extensions;
@@ -17,8 +18,8 @@ public class PublishPostEndpoint : IApiEndpoint
         // Use POST or PUT for state change, POST is often used for actions
         // Define a specific route for publishing
         app.MapPost(BlogPostRouteConsts.BaseRoute + "/{postId:guid}/publish", Handle)
-           .RequireAuthorization() // Only authorized users (e.g., admins, authors)
-                                   // .RequireAuthorization("CanPublishPostsPolicy") // Add specific policy later
+           .RequireAuthorization(BlogPostPolicyConsts.ManageAllPostsPolicy)// Only authorized users (e.g., admins, authors)
+                                                                           // .RequireAuthorization("CanPublishPostsPolicy") // Add specific policy later
            .WithName("PublishPost")
            .Produces(StatusCodes.Status204NoContent) // Success
            .ProducesProblem(StatusCodes.Status404NotFound) // Post not found

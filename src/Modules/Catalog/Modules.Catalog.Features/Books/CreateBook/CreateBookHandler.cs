@@ -53,7 +53,8 @@ internal sealed class CreateBookHandler(
             request.Description,
             request.Isbn,
             request.Price,
-            request.AuthorId
+            request.AuthorId,
+            request.CategoryId
         );
 
         // 3. Add to DbContext and Save

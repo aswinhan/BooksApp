@@ -29,13 +29,17 @@ public class GetBooksListEndpoint : IApiEndpoint
      [FromQuery] int pageNumber = 1,
      [FromQuery] int pageSize = 10,
      [FromQuery] Guid? authorId = null, // Optional author filter
+     [FromQuery] Guid? categoryId = null, // <-- ADD CategoryId
+     [FromQuery] decimal? minPrice = null, // <-- ADD MinPrice
+     [FromQuery] decimal? maxPrice = null, // <-- ADD MaxPrice
+     [FromQuery] string? search = null, // <-- ADD search query parameter
      [FromQuery] string? sortBy = null,   // Optional sort field
      [FromQuery] string? sortOrder = null// Optional sort order ("asc" or "desc")
      )
     {
         // Pass all parameters to the handler
         var response = await handler.HandleAsync(
-            pageNumber, pageSize, authorId, sortBy, sortOrder, cancellationToken);
+            pageNumber, pageSize, authorId, categoryId, minPrice, maxPrice, search, sortBy, sortOrder, cancellationToken);
 
         if (response.IsError)
         {

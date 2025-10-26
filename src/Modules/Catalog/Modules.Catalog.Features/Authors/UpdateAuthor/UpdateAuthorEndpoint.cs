@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Catalog.Domain.Policies;
 using Modules.Catalog.Features.Authors.Shared.Responses;
 using Modules.Catalog.Features.Authors.Shared.Routes;
 using Modules.Common.API.Abstractions;
@@ -17,7 +18,7 @@ public class UpdateAuthorEndpoint : IApiEndpoint
     public void MapEndpoint(WebApplication app)
     {
         app.MapPut(AuthorRouteConsts.UpdateAuthor, Handle)
-           .RequireAuthorization() // Add admin policy later
+           .RequireAuthorization(CatalogPolicyConsts.ManageCatalogPolicy)// Add admin policy later
            .WithName("UpdateAuthor")
            .Produces<AuthorResponse>(StatusCodes.Status200OK)
            .ProducesValidationProblem()

@@ -1,13 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results;
 using Modules.Orders.Features.Shared.Responses;
 using Modules.Orders.Infrastructure.Database;
+using Modules.Users.Domain.Users;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Modules.Orders.Features.GetOrderById;
 
@@ -18,6 +20,7 @@ internal interface IGetOrderByIdHandler : IHandler
 
 internal sealed class GetOrderByIdHandler(
     OrdersDbContext dbContext,
+    UserManager<User> userManager,
     ILogger<GetOrderByIdHandler> logger)
     : IGetOrderByIdHandler
 {

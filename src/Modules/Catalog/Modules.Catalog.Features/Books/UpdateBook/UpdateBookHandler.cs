@@ -59,6 +59,18 @@ internal sealed class UpdateBookHandler(
             }
         }
 
+        // --- ADD Check for New Category ---
+        if (book.CategoryId != request.CategoryId)
+        {
+            var categoryExists = await dbContext.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
+            if (!categoryExists)
+            {
+                logger.LogWarning("Update book failed: New Category {CategoryId} not found.", request.CategoryId);
+                return Error.NotFound("Catalog.CategoryNotFound", $"Category with ID {request.CategoryId} not found.");
+            }
+        }
+        // --- End Check ---
+
 
         // 4. Execute the Domain Logic via the Aggregate Root
         try
@@ -68,7 +80,8 @@ internal sealed class UpdateBookHandler(
                 request.Description,
                 request.Isbn,
                 request.Price,
-                request.AuthorId
+                request.AuthorId,
+                request.CategoryId
             );
         }
         catch (ArgumentException ex) // Catch validation errors from domain

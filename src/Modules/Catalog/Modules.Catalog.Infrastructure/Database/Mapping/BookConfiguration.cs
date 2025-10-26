@@ -31,6 +31,12 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
                .HasForeignKey(b => b.AuthorId) // Foreign key property in Book
                .IsRequired();
 
+        // Configure the many-to-one relationship with Category
+        builder.HasOne(b => b.Category) // Book has one Category
+               .WithMany(c => c.Books) // Category has many Books
+               .HasForeignKey(b => b.CategoryId) // Foreign key in Book
+               .IsRequired();
+
         // Configure the one-to-many relationship with Review
         // Map the private '_reviews' field using UsePropertyAccessMode
         builder.HasMany(b => b.Reviews) // Book has many Reviews

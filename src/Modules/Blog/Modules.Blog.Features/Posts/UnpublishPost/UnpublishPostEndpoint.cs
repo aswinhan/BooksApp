@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Blog.Domain.Policies;
 using Modules.Blog.Features.Posts.PublishPost;
 using Modules.Blog.Features.Posts.Shared.Routes; // For route constants
 using Modules.Common.API.Abstractions;
@@ -17,8 +18,8 @@ public class UnpublishPostEndpoint : IApiEndpoint
     {
         // Define a specific route for unpublishing
         app.MapPost(BlogPostRouteConsts.BaseRoute + "/{postId:guid}/unpublish", Handle)
-           .RequireAuthorization() // Only authorized users (e.g., admins, authors)
-                                   // .RequireAuthorization("CanManagePostsPolicy") // Add specific policy later
+           .RequireAuthorization(BlogPostPolicyConsts.ManageAllPostsPolicy)// Only authorized users (e.g., admins, authors)
+                                                                           // .RequireAuthorization("CanManagePostsPolicy") // Add specific policy later
            .WithName("UnpublishPost")
            .Produces(StatusCodes.Status204NoContent) // Success
            .ProducesProblem(StatusCodes.Status404NotFound) // Post not found

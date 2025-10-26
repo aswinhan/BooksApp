@@ -18,6 +18,7 @@
 		<ProjectReference Include="..\..\..\Common\Modules.Common.API\Modules.Common.API.csproj" />
 		<ProjectReference Include="..\..\..\Common\Modules.Common.Application\Modules.Common.Application.csproj" />
 		<ProjectReference Include="..\..\Catalog\Modules.Catalog.PublicApi\Modules.Catalog.PublicApi.csproj" />
+		<ProjectReference Include="..\..\Users\Modules.Users.Domain\Modules.Users.Domain.csproj" />
 		<ProjectReference Include="..\Modules.Orders.Infrastructure\Modules.Orders.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules.Orders.PublicApi\Modules.Orders.PublicApi.csproj" />
 	</ItemGroup>
