@@ -77,6 +77,7 @@ internal sealed class GetBookByIdHandler(
                 r.CreatedAtUtc
             )).ToList(),
             quantityAvailable,
+            book.CoverImageUrl,
             book.CreatedAtUtc,
             book.UpdatedAtUtc
         );

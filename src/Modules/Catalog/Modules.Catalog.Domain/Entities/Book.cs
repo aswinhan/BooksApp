@@ -13,6 +13,7 @@ public class Book : IAuditableEntity
     public string? Description { get; private set; }
     public string Isbn { get; private set; } = null!; // International Standard Book Number
     public decimal Price { get; private set; }
+    public string? CoverImageUrl { get; private set; }
 
     public Guid AuthorId { get; private set; } // Foreign key to Author
     public Author Author { get; private set; } = null!; // Navigation property
@@ -29,7 +30,7 @@ public class Book : IAuditableEntity
     private Book() { }
 
     // Public constructor for creating a new Book
-    public Book(Guid id, string title, string? description, string isbn, decimal price, Guid authorId, Guid categoryId)
+    public Book(Guid id, string title, string? description, string isbn, decimal price, Guid authorId, Guid categoryId, string? coverImageUrl = null)
     {
         // Basic validation
         if (price < 0) throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative.");
@@ -44,6 +45,7 @@ public class Book : IAuditableEntity
         Price = price;
         AuthorId = authorId;
         CategoryId = categoryId;
+        CoverImageUrl = coverImageUrl;
         CreatedAtUtc = DateTime.UtcNow;
     }
 
@@ -70,7 +72,7 @@ public class Book : IAuditableEntity
     /// <summary>
     /// Updates the book's core details.
     /// </summary>
-    public void UpdateDetails(string title, string? description, string isbn, decimal price, Guid authorId, Guid categoryId)
+    public void UpdateDetails(string title, string? description, string isbn, decimal price, Guid authorId, Guid categoryId, string? coverImageUrl)
     {
         if (price < 0) throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative.");
         if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Title cannot be empty.", nameof(title));
@@ -82,6 +84,14 @@ public class Book : IAuditableEntity
         Price = price;
         AuthorId = authorId; // Assuming Author can be changed
         CategoryId = categoryId;
+        CoverImageUrl = coverImageUrl;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    // Method specifically for updating the cover image URL
+    public void SetCoverImage(string? imageUrl)
+    {
+        CoverImageUrl = imageUrl;
         UpdatedAtUtc = DateTime.UtcNow;
     }
 

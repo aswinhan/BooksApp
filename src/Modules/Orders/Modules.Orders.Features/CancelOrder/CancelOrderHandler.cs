@@ -1,11 +1,13 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results;
+using Modules.Inventory.PublicApi;
+using Modules.Inventory.PublicApi.Contracts;
 using Modules.Orders.Infrastructure.Database;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Modules.Orders.Features.CancelOrder;
 
@@ -16,6 +18,7 @@ internal interface ICancelOrderHandler : IHandler
 
 internal sealed class CancelOrderHandler(
     OrdersDbContext dbContext,
+    IInventoryModuleApi inventoryApi,// Inject IInventoryModuleApi if cancelling needs to trigger stock increase
     ILogger<CancelOrderHandler> logger)
     // Inject IEventPublisher if cancelling needs to trigger stock increase
     // Inject IInventoryModuleApi if cancelling needs to trigger stock increase
@@ -55,6 +58,33 @@ internal sealed class CancelOrderHandler(
         if (statusChanged)
         {
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            // --- Increase Stock ---
+            try
+            {
+                // Create the request based on items in the cancelled order
+                var stockRequestItems = order.OrderItems.Select(item =>
+                    new StockAdjustmentItem(item.BookId, item.Quantity)).ToList();
+                var increaseStockRequest = new StockAdjustmentRequest(stockRequestItems);
+
+                var increaseResult = await inventoryApi.IncreaseStockAsync(increaseStockRequest, cancellationToken);
+                if (increaseResult.IsError)
+                {
+                    // Log error, but don't fail the cancellation. Stock might need manual adjustment.
+                    logger.LogError("Failed to increase stock for cancelled Order {OrderId}: {@Errors}", orderId, increaseResult.Errors);
+                    // Potentially publish a "StockReplenishmentFailed" event for retry/monitoring
+                }
+                else
+                {
+                    logger.LogInformation("Successfully increased stock for cancelled Order {OrderId}", orderId);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log unexpected errors during stock increase
+                logger.LogError(ex, "Error increasing stock for cancelled Order {OrderId}", orderId);
+            }
+            // --- End Increase Stock ---
 
             // --- IMPORTANT: Handle Side Effects ---
             // If cancelling requires increasing stock, do it here.

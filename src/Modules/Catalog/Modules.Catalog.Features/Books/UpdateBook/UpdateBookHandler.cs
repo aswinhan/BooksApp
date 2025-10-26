@@ -81,7 +81,8 @@ internal sealed class UpdateBookHandler(
                 request.Isbn,
                 request.Price,
                 request.AuthorId,
-                request.CategoryId
+                request.CategoryId,
+                request.CoverImageUrl
             );
         }
         catch (ArgumentException ex) // Catch validation errors from domain
@@ -120,6 +121,7 @@ internal sealed class UpdateBookHandler(
              )).ToList(),
              // Fetch stock quantity here if needed for Update response
              0, // Placeholder for QuantityAvailable - Fetch from Inventory if needed
+             book.CoverImageUrl,
              book.CreatedAtUtc, 
              book.UpdatedAtUtc // UpdatedAtUtc will be set
          );

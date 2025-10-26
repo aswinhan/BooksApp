@@ -14,6 +14,7 @@ public record BookResponse(
     string AuthorName, // Include author name for convenience
     List<ReviewResponse> Reviews, // Include reviews
     int QuantityAvailable,
+    string? CoverImageUrl,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc
 );

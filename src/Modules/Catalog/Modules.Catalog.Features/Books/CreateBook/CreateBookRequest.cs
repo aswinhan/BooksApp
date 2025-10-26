@@ -7,6 +7,7 @@ public record CreateBookRequest(
     string? Description,
     string Isbn,
     decimal Price,
+    string? CoverImageUrl,
     Guid AuthorId, // We need the Author's ID
     Guid CategoryId
 );

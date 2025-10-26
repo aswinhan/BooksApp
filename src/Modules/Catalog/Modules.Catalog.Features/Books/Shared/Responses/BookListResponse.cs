@@ -8,5 +8,6 @@ public record BookListResponse(
     string Title,
     string AuthorName, // Denormalized for convenience
     decimal Price,
+    double? AverageRating,
     string? CoverImageUrl // Add later if needed
 );

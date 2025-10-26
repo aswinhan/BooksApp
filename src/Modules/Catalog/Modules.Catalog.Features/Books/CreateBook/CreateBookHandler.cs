@@ -1,14 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync
+﻿using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync
 using Microsoft.Extensions.Logging;
 using Modules.Catalog.Domain.Entities; // For Book, Author
 using Modules.Catalog.Features.Books.Shared.Responses;
 using Modules.Catalog.Infrastructure.Database; // For CatalogDbContext
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results; // For Result<>, Error
+using Modules.Inventory.PublicApi;
+using Modules.Inventory.PublicApi.Contracts;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Modules.Catalog.Features.Books.CreateBook;
 
@@ -19,6 +21,7 @@ internal interface ICreateBookHandler : IHandler
 
 internal sealed class CreateBookHandler(
     CatalogDbContext dbContext, // Inject the module's DbContext
+    IInventoryModuleApi inventoryApi,
     ILogger<CreateBookHandler> logger)
     : ICreateBookHandler
 {
@@ -63,6 +66,37 @@ internal sealed class CreateBookHandler(
 
         logger.LogInformation("Successfully created book {BookId} with Title: {Title}", book.Id, book.Title);
 
+        // --- Create Initial Stock Record ---
+        try
+        {
+            // Use IncreaseStock with initial quantity 0 (or a default starting value)
+            var stockRequest = new StockAdjustmentRequest(
+                [new StockAdjustmentItem(book.Id, 0)] // Create with 0 quantity initially
+            );
+            // Note: We use IncreaseStock(0) as a way to ensure the record exists.
+            // The SetStock feature is for admin manual override.
+            // A dedicated "InitializeStock" method in IInventoryModuleApi might be cleaner.
+            // Let's adapt SetStockHandler logic slightly to handle creation on first set.
+
+            // --- Alternative: Using SetStock feature internally ---
+            // Requires adapting SetStockHandler to be callable internally or adding a new internal handler.
+            // For now, let's assume we need an admin to set the initial stock via the SetStock endpoint.
+            // We won't automatically create the stock record here yet.
+            // We'll rely on GetStockLevelAsync to return 0 if the record doesn't exist.
+            logger.LogInformation("Inventory record for Book {BookId} should be created manually via admin endpoint.", book.Id);
+
+            /* --- If automatically creating stock ---
+            // We need an "EnsureStockRecordExists" or similar internal method.
+            // For now, assume GetStockLevelAsync handles non-existence gracefully.
+            */
+        }
+        catch (Exception ex)
+        {
+            // Log error if creating initial stock fails, but don't fail the whole operation
+            logger.LogError(ex, "Failed to ensure initial stock record for Book {BookId}", book.Id);
+        }
+        // --- End Initial Stock ---
+
         // 4. Map to Response DTO (explicit mapping)
         // We need AuthorName, but the book entity doesn't have it directly after creation.
         // For simplicity here, we'll fetch it again. In a real scenario, consider options.
@@ -79,6 +113,7 @@ internal sealed class CreateBookHandler(
             author?.Name ?? "Unknown Author", // Handle if author somehow not found
             [], // No reviews on creation
             0, // QuantityAvailable (required by BookResponse)
+            book.CoverImageUrl,
             book.CreatedAtUtc,
             book.UpdatedAtUtc
         );

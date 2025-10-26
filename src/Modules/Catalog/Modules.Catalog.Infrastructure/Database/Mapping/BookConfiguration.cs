@@ -25,6 +25,9 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
                .HasColumnType("decimal(18,2)") // Specify precision for currency
                .IsRequired();
 
+        builder.Property(b => b.CoverImageUrl)
+       .HasMaxLength(500); // Example max length for URL
+
         // Configure the many-to-one relationship with Author
         builder.HasOne(b => b.Author) // Book has one Author
                .WithMany(a => a.Books) // Author has many Books
