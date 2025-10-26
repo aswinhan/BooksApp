@@ -108,22 +108,36 @@ internal sealed class UpdateBookHandler(
                        : (await dbContext.Authors.FindAsync([request.AuthorId], cancellationToken: cancellationToken))?.Name ?? "Unknown";
 
 
+        // --- Calculate Rating for Response (if needed, or get from entity if stored) ---
+        int reviewCount = book.Reviews.Count; // Need reviews included
+        double? averageRating = reviewCount > 0 ? book.Reviews.Average(r => r.Rating.Value) : null;
+        // --- End Calculate Rating ---
+
+        // --- Get Stock Level for Response ---
+        int quantityAvailable = 0; // Placeholder - Inject IInventoryModuleApi if needed here
+                                   // var stockResult = await inventoryApi.GetStockLevelAsync(book.Id, cancellationToken);
+                                   // if (stockResult.IsSuccess) quantityAvailable = stockResult.Value?.QuantityAvailable ?? 0;
+                                   // --- End Get Stock Level ---
+
+
+        // Ensure ALL parameters match the BookResponse record definition IN ORDER
         var response = new BookResponse(
-             book.Id, 
-             book.Title, 
-             book.Description, 
-             book.Isbn, 
-             book.Price, 
+             book.Id,
+             book.Title,
+             book.Description,
+             book.Isbn,
+             book.Price,
              book.AuthorId,
-             authorName, // Use potentially updated author name
+             authorName,
              book.Reviews.Select(r => new ReviewResponse(
                  r.Id, r.UserId, r.Comment, r.Rating.Value, r.CreatedAtUtc
              )).ToList(),
-             // Fetch stock quantity here if needed for Update response
-             0, // Placeholder for QuantityAvailable - Fetch from Inventory if needed
-             book.CoverImageUrl,
-             book.CreatedAtUtc, 
-             book.UpdatedAtUtc // UpdatedAtUtc will be set
+             quantityAvailable,   // Pass quantity
+             book.CoverImageUrl,  // Pass cover image URL
+             averageRating,       // Pass average rating
+             reviewCount,         // Pass review count
+             book.CreatedAtUtc,   // Pass CreatedAtUtc
+             book.UpdatedAtUtc    // Pass UpdatedAtUtc
          );
 
         return response;

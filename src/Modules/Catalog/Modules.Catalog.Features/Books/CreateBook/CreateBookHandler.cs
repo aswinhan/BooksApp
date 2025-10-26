@@ -103,6 +103,7 @@ internal sealed class CreateBookHandler(
         var author = await dbContext.Authors.FindAsync([request.AuthorId], cancellationToken: cancellationToken); // Find author for name
 
 
+        // Ensure ALL parameters match the BookResponse record definition IN ORDER
         var response = new BookResponse(
             book.Id,
             book.Title,
@@ -110,12 +111,14 @@ internal sealed class CreateBookHandler(
             book.Isbn,
             book.Price,
             book.AuthorId,
-            author?.Name ?? "Unknown Author", // Handle if author somehow not found
-            [], // No reviews on creation
-            0, // QuantityAvailable (required by BookResponse)
-            book.CoverImageUrl,
-            book.CreatedAtUtc,
-            book.UpdatedAtUtc
+            author?.Name ?? "Unknown Author",
+            [], // New book has no reviews yet
+            0,  // Initial stock quantity is 0 (or fetch if created)
+            book.CoverImageUrl, // Pass cover image URL (likely null on create)
+            null, // New book has no average rating yet
+            0,    // New book has 0 reviews yet
+            book.CreatedAtUtc, // Pass CreatedAtUtc
+            book.UpdatedAtUtc  // Pass UpdatedAtUtc (will be null on create)
         );
 
         return response; // Implicit conversion to Result<BookResponse>

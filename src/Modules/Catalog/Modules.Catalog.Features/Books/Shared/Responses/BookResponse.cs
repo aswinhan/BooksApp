@@ -15,6 +15,8 @@ public record BookResponse(
     List<ReviewResponse> Reviews, // Include reviews
     int QuantityAvailable,
     string? CoverImageUrl,
+    double? AverageRating,
+    int ReviewCount,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc
 );

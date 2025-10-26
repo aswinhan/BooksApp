@@ -7,7 +7,9 @@ using Modules.Common.API.Extensions;
 using Modules.Common.Application; // Required for EventPublisher
 using Modules.Common.Application.Extensions;
 using Modules.Common.Domain.Events;
+using Modules.Orders.Features.InternalApi;
 using Modules.Orders.Infrastructure;
+using Modules.Orders.PublicApi;
 
 // Put extensions into the global Microsoft namespace
 // ReSharper disable once CheckNamespace
@@ -39,6 +41,15 @@ public static class OrdersModuleRegistration
 
         // Automatically find and register handlers
         services.RegisterHandlersFromAssemblyContaining(typeof(OrdersModuleRegistration));
+
+        // --- Register Internal API ---
+        services.AddScoped<OrdersModuleApi>(); // Register concrete implementation
+        services.AddScoped<IOrdersModuleApi>(provider => { // Register interface
+            var api = provider.GetRequiredService<OrdersModuleApi>();
+            // return new TracedOrdersModuleApi(api); // Apply tracing decorator if created
+            return api; // Return concrete for now
+        });
+        // --- End Register Internal API ---
 
         // Automatically find and register validators
         services.AddValidatorsFromAssembly(typeof(OrdersModuleRegistration).Assembly, includeInternalTypes: true);

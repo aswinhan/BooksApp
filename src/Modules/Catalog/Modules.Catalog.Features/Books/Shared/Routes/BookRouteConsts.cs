@@ -9,5 +9,7 @@ internal static class BookRouteConsts
     internal const string CreateBook = BaseRoute;                // POST /api/catalog/books
     internal const string GetBookById = $"{BaseRoute}/{{bookId:guid}}"; // GET /api/catalog/books/{bookId}
     internal const string AddReview = $"{BaseRoute}/{{bookId:guid}}/reviews"; // POST /api/catalog/books/{bookId}/reviews
+    internal const string GetBookReviews = $"{BaseRoute}/{{bookId:guid}}/reviews"; //GET /api/catalog/books/{bookId}/reviews
+    internal const string GetRelatedBooks = $"{BaseRoute}/{{bookId:guid}}/related"; // GET /api/catalog/books/{bookId}/related
     // Add routes for GetBooksList, UpdateBook, DeleteBook later
 }

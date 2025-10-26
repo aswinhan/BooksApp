@@ -60,7 +60,20 @@ internal sealed class GetBookByIdHandler(
         }
         // --- End Get Stock Level ---
 
+        // --- Calculate Rating ---
+        int reviewCount = book.Reviews.Count;
+        double? averageRating = reviewCount > 0
+                               ? book.Reviews.Average(r => r.Rating.Value) // Calculate average
+                               : null; // Null if no reviews
+        // --- End Calculate Rating ---
+
+        // Map Reviews to DTO
+        var reviewsList = book.Reviews.Select(r => new ReviewResponse(
+            r.Id, r.UserId, r.Comment, r.Rating.Value, r.CreatedAtUtc
+        )).ToList();
+
         // Map the Book entity and its related data to the response DTO
+        // Create the response DTO, including new fields
         var response = new BookResponse(
             book.Id,
             book.Title,
@@ -68,16 +81,12 @@ internal sealed class GetBookByIdHandler(
             book.Isbn,
             book.Price,
             book.AuthorId,
-            book.Author.Name, // Get name from loaded Author
-            book.Reviews.Select(r => new ReviewResponse( // Map reviews
-                r.Id,
-                r.UserId,
-                r.Comment,
-                r.Rating.Value, // Get value from Rating VO
-                r.CreatedAtUtc
-            )).ToList(),
+            book.Author.Name,
+            reviewsList,
             quantityAvailable,
             book.CoverImageUrl,
+            averageRating,   // <-- Pass average rating
+            reviewCount,     // <-- Pass review count
             book.CreatedAtUtc,
             book.UpdatedAtUtc
         );

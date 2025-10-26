@@ -1,13 +1,15 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync, Include
+﻿using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync, Include
 using Microsoft.Extensions.Logging;
 using Modules.Catalog.Domain.Entities; // For Book
 using Modules.Catalog.Domain.ValueObjects; // For Rating value object
 using Modules.Catalog.Infrastructure.Database; // For CatalogDbContext
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results; // For Result<>, Success, Error
+using Modules.Orders.PublicApi;
+using Modules.Orders.PublicApi.Contracts;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Modules.Catalog.Features.Books.AddBookReview;
 
@@ -20,6 +22,7 @@ internal interface IAddBookReviewHandler : IHandler
 // Implementation of the handler
 internal sealed class AddBookReviewHandler(
     CatalogDbContext dbContext, // Use DbContext directly for aggregate operations
+    IOrdersModuleApi ordersApi,
     ILogger<AddBookReviewHandler> logger)
     : IAddBookReviewHandler
 {
@@ -30,6 +33,24 @@ internal sealed class AddBookReviewHandler(
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Attempting to add review for Book {BookId} by User {UserId}", bookId, userId);
+
+        // --- Check if User Purchased Book ---
+        var purchaseCheckRequest = new CheckPurchaseRequest(userId, bookId);
+        var purchaseResult = await ordersApi.CheckIfUserPurchasedBookAsync(purchaseCheckRequest, cancellationToken);
+
+        if (purchaseResult.IsError)
+        {
+            // Log error from Orders API but return a generic failure for security?
+            logger.LogError("Error checking purchase status for User {UserId}, Book {BookId}: {Error}",
+                userId, bookId, purchaseResult.FirstError.Code);
+            return Error.Failure("Catalog.PurchaseCheckFailed", "Could not verify purchase status.");
+        }
+        if (!purchaseResult.Value!.HasPurchased)
+        {
+            logger.LogWarning("Add review failed: User {UserId} has not purchased Book {BookId}.", userId, bookId);
+            return Error.Forbidden("Catalog.NotPurchased", "You can only review books you have purchased.");
+        }
+        // --- End Purchase Check ---
 
         // 1. Find the Book Aggregate Root (including existing reviews)
         var book = await dbContext.Books
