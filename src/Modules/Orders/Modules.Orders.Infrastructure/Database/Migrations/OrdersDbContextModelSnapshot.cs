@@ -30,9 +30,17 @@ namespace Modules.Orders.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("AppliedCouponCode")
+                        .HasColumnType("text")
+                        .HasColumnName("applied_coupon_code");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("discount_amount");
 
                     b.Property<string>("Status")
                         .IsRequired()

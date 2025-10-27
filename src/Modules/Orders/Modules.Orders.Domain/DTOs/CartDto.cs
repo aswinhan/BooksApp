@@ -7,7 +7,13 @@ public class CartDto
 {
     // Use dictionary for potentially faster lookups by BookId? Or List is fine.
     public List<CartItemDto> Items { get; set; } = [];
+    public string? AppliedCouponCode { get; set; }
+    public decimal DiscountAmount { get; set; }
+    public decimal ShippingCost { get; set; }
 
-    // Calculated total for the cart
-    public decimal Total => Items.Sum(i => i.Price * i.Quantity);
+    // Calculated subtotal before discount
+    public decimal Subtotal => Items.Sum(i => i.Price * i.Quantity);
+
+    // Final total includes subtotal, discount, and shipping
+    public decimal FinalTotal => (Subtotal - DiscountAmount) + ShippingCost;
 }

@@ -17,4 +17,7 @@ internal static class OrderRouteConsts
     // Order endpoints
     internal const string Checkout = OrderBaseRoute + "/checkout";       // POST /api/orders/checkout
     // Add GetOrderById, GetMyOrders later
+
+    internal const string ApplyCoupon = CartBaseRoute + "/coupon";    // POST /api/cart/coupon
+    internal const string RemoveCoupon = CartBaseRoute + "/coupon";   // DELETE /api/cart/coupon
 }

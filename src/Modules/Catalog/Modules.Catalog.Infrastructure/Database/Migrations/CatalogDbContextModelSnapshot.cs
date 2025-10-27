@@ -66,7 +66,7 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("author_id");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
@@ -204,8 +204,6 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                     b.HasOne("Modules.Catalog.Domain.Entities.Category", "Category")
                         .WithMany("Books")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_books_categories_category_id");
 
                     b.Navigation("Author");

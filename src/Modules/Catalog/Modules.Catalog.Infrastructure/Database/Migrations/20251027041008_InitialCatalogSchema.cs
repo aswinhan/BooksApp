@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Modules.Catalog.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCatalogMigration : Migration
+    public partial class InitialCatalogSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,6 +31,22 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "categories",
+                schema: "catalog",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    slug = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_categories", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "books",
                 schema: "catalog",
                 columns: table => new
@@ -40,7 +56,9 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                     description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     isbn = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    cover_image_url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     author_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    category_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -54,6 +72,12 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                         principalTable: "authors",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_books_categories_category_id",
+                        column: x => x.category_id,
+                        principalSchema: "catalog",
+                        principalTable: "categories",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -88,6 +112,19 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                 column: "author_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_books_category_id",
+                schema: "catalog",
+                table: "books",
+                column: "category_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_categories_slug",
+                schema: "catalog",
+                table: "categories",
+                column: "slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_reviews_book_id",
                 schema: "catalog",
                 table: "reviews",
@@ -107,6 +144,10 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "authors",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "categories",
                 schema: "catalog");
         }
     }

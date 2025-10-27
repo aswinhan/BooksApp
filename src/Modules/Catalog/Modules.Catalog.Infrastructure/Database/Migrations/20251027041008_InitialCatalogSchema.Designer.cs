@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Modules.Catalog.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20251026182110_AddCoverImageUrlToBooks")]
-    partial class AddCoverImageUrlToBooks
+    [Migration("20251027041008_InitialCatalogSchema")]
+    partial class InitialCatalogSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,7 +69,7 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("author_id");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
@@ -207,8 +207,6 @@ namespace Modules.Catalog.Infrastructure.Database.Migrations
                     b.HasOne("Modules.Catalog.Domain.Entities.Category", "Category")
                         .WithMany("Books")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_books_categories_category_id");
 
                     b.Navigation("Author");

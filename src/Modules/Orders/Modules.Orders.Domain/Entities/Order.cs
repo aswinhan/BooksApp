@@ -20,9 +20,10 @@ public class Order : IAuditableEntity
     private readonly List<OrderItem> _orderItems = [];
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
 
-    // Optional: Coupon/Discount info
-    // public string? CouponCode { get; private set; }
-    // public decimal DiscountAmount { get; private set; }
+    // --- ADD Coupon Properties ---
+    public string? AppliedCouponCode { get; private set; }
+    public decimal DiscountAmount { get; private set; } // Store the calculated discount
+    // --- End Coupon ---
 
     // Private constructor for EF Core
     private Order() { }
@@ -69,6 +70,18 @@ public class Order : IAuditableEntity
         RecalculateTotal();
         UpdatedAtUtc = DateTime.UtcNow;
     }
+
+    // Method to apply coupon details during creation/checkout
+    // Call this *after* adding items and *before* final SaveChanges in handler
+    public void ApplyCoupon(string code, decimal discountAmount)
+    {
+        // Can add validation here if needed, but primary validation is in Discounts module
+        AppliedCouponCode = code;
+        DiscountAmount = Math.Max(0, discountAmount); // Ensure discount isn't negative
+        RecalculateTotal(); // Update total after applying discount
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
 
     // Example method to update status (implement other transitions similarly)
     public void SetStatusToProcessing()
@@ -131,10 +144,12 @@ public class Order : IAuditableEntity
     /// <summary>
     /// Recalculates the total based on current items.
     /// </summary>
+    // Update RecalculateTotal to consider discount
     private void RecalculateTotal()
     {
-        Total = _orderItems.Sum(item => item.Price * item.Quantity);
-        // Apply discount here if needed
+        decimal subtotal = _orderItems.Sum(item => item.Price * item.Quantity);
+        // Ensure total doesn't go below zero
+        Total = Math.Max(0, subtotal - DiscountAmount);
     }
 
     // --- IAuditableEntity ---

@@ -1,4 +1,5 @@
-﻿using Modules.Orders.Domain.DTOs;
+﻿using Modules.Common.Domain.Results;
+using Modules.Orders.Domain.DTOs;
 using System;
 using System.Threading.Tasks;
 
@@ -33,4 +34,15 @@ public interface ICartService
     /// Clears all items from the user's cart.
     /// </summary>
     Task ClearCartAsync(string userId);
+
+    /// <summary>
+    /// Validates and applies a coupon code to the user's cart.
+    /// Returns the updated cart or validation errors.
+    /// </summary>
+    Task<Result<CartDto>> ApplyCouponToCartAsync(string userId, string couponCode);
+
+    /// <summary>
+    /// Removes any applied coupon from the user's cart.
+    /// </summary>
+    Task<Result<CartDto>> RemoveCouponFromCartAsync(string userId);
 }

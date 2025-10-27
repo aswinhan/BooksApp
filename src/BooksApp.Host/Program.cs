@@ -6,6 +6,7 @@ using Modules.Common.API;
 using Modules.Common.API.Extensions;
 using Modules.Common.Infrastructure;
 using Modules.Common.Infrastructure.Database;
+using Modules.Discounts.Features;
 using Modules.Inventory.Features;
 using Modules.Orders.Features;
 using Modules.Users.Features;
@@ -22,7 +23,7 @@ try
     var configuration = builder.Configuration;
 
     services.AddCoreWebApiInfrastructure();
-    services.AddCoreInfrastructure(configuration, ["Users", "Catalog", "Orders", "Blog", "Inventory"]);
+    services.AddCoreInfrastructure(configuration, ["Users", "Catalog", "Orders", "Blog", "Inventory", "Discounts"]);
     services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection")
         ?? throw new InvalidOperationException("Redis connection string 'RedisConnection' not found.")));
@@ -32,6 +33,7 @@ try
     services.AddOrdersModule(configuration);
     services.AddBlogModule(configuration);
     services.AddInventoryModule(configuration);
+    services.AddDiscountsModule(configuration);
 
     services.AddScoped<CatalogSeedService>();
     services.AddScoped<BlogSeedService>();

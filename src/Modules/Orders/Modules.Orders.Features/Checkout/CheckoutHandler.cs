@@ -4,6 +4,8 @@ using Modules.Catalog.PublicApi; // Required to get book details
 using Modules.Common.Domain.Events; // Required for IEventPublisher
 using Modules.Common.Domain.Handlers;
 using Modules.Common.Domain.Results;
+using Modules.Discounts.PublicApi;
+using Modules.Discounts.PublicApi.Contracts;
 using Modules.Inventory.PublicApi;
 using Modules.Inventory.PublicApi.Contracts;
 using Modules.Orders.Domain.Abstractions; // Required for ICartService
@@ -29,6 +31,7 @@ internal sealed class CheckoutHandler(
     ICatalogModuleApi catalogApi,
     OrdersDbContext dbContext, // Inject DbContext for aggregate operations & transaction
     IInventoryModuleApi inventoryApi,
+    IDiscountsModuleApi discountsApi,
     IEventPublisher eventPublisher, // Inject publisher for events
     ILogger<CheckoutHandler> logger)
     : ICheckoutHandler
@@ -89,6 +92,17 @@ internal sealed class CheckoutHandler(
                 order.AddOrderItem(item.BookId, item.Title, item.Price, item.Quantity);
             }
 
+            // --- Add Coupon Details to Order (Before Saving) ---
+            if (!string.IsNullOrEmpty(cart.AppliedCouponCode))
+            {
+                // Need to add properties to Order entity first (Step 4)
+                // order.ApplyCoupon(cart.AppliedCouponCode, cart.DiscountAmount);
+                logger.LogInformation("Applying Coupon {CouponCode} (Discount: {Amount}) to Order {OrderId}",
+                    cart.AppliedCouponCode, cart.DiscountAmount, order.Id);
+            }
+            // --- End Add Coupon ---
+
+
             // 4. Add Order to DbContext
             await dbContext.Orders.AddAsync(order, cancellationToken);
 
@@ -107,6 +121,24 @@ internal sealed class CheckoutHandler(
             }
             // --- End Decrease Stock ---
 
+            // --- Record Coupon Usage (If Applied) ---
+            if (!string.IsNullOrEmpty(cart.AppliedCouponCode))
+            {
+                var recordUsageRequest = new RecordUsageRequest(cart.AppliedCouponCode);
+                var recordResult = await discountsApi.RecordCouponUsageAsync(recordUsageRequest, cancellationToken);
+                if (recordResult.IsError)
+                {
+                    // Coupon usage couldn't be recorded - CRITICAL! Rollback transaction.
+                    logger.LogError("Checkout failed for User {UserId}: Failed to record usage for Coupon {CouponCode}. Rolling back. Error: {@Errors}",
+                        userId, cart.AppliedCouponCode, recordResult.Errors);
+                    await transaction.RollbackAsync(cancellationToken);
+                    // Return specific error indicating coupon issue
+                    return Error.Failure("Orders.CouponUsageRecordFailed", $"Failed to finalize coupon '{cart.AppliedCouponCode}'. Please try again or remove the coupon.");
+                }
+                logger.LogInformation("Successfully recorded usage for Coupon {CouponCode} for Order {OrderId}",
+                    cart.AppliedCouponCode, order.Id);
+            }
+            // --- End Record Coupon Usage ---
 
             // 6. Clear Cart (only after successful save)
             await cartService.ClearCartAsync(userId);

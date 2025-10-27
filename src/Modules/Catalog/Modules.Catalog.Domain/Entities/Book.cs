@@ -19,8 +19,8 @@ public class Book : IAuditableEntity
     public Author Author { get; private set; } = null!; // Navigation property
 
     // --- ADD Category Relationship ---
-    public Guid CategoryId { get; private set; } // Foreign key to Category
-    public Category Category { get; private set; } = null!; // Navigation property
+    public Guid? CategoryId { get; private set; } // Foreign key to Category
+    public Category? Category { get; private set; } = null!; // Navigation property
 
     // Use a private field to hold reviews, expose as read-only
     private readonly List<Review> _reviews = [];
@@ -30,7 +30,7 @@ public class Book : IAuditableEntity
     private Book() { }
 
     // Public constructor for creating a new Book
-    public Book(Guid id, string title, string? description, string isbn, decimal price, Guid authorId, Guid categoryId, string? coverImageUrl = null)
+    public Book(Guid id, string title, string? description, string isbn, decimal price, Guid authorId, Guid? categoryId, string? coverImageUrl = null)
     {
         // Basic validation
         if (price < 0) throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative.");
@@ -72,7 +72,7 @@ public class Book : IAuditableEntity
     /// <summary>
     /// Updates the book's core details.
     /// </summary>
-    public void UpdateDetails(string title, string? description, string isbn, decimal price, Guid authorId, Guid categoryId, string? coverImageUrl)
+    public void UpdateDetails(string title, string? description, string isbn, decimal price, Guid authorId, Guid? categoryId, string? coverImageUrl)
     {
         if (price < 0) throw new ArgumentOutOfRangeException(nameof(price), "Price cannot be negative.");
         if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Title cannot be empty.", nameof(title));
