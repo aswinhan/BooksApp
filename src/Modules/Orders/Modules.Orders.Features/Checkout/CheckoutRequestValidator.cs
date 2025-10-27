@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Modules.Orders.Domain.Enums;
 using Modules.Orders.Domain.ValueObjects; // Required for Address
 
 namespace Modules.Orders.Features.Checkout;
@@ -10,6 +11,10 @@ public class CheckoutRequestValidator : AbstractValidator<CheckoutRequest>
         RuleFor(x => x.ShippingAddress)
             .NotNull().WithMessage("Shipping address is required.")
             .SetValidator(new AddressValidator()); // Reuse Address validator if needed
+
+        RuleFor(x => x.PaymentMethod)
+            .IsInEnum().WithMessage("Invalid payment method specified.")
+            .NotEqual(PaymentMethod.Undefined).WithMessage("Payment method must be selected.");
     }
 }
 

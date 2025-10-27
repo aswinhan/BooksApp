@@ -21,4 +21,12 @@ public class User : IdentityUser<string>, IAuditableEntity // Use string for PK
 
     // Add our custom DisplayName property from original plan
     public string? DisplayName { get; set; }
+
+    // --- ADD Address Properties ---
+    public string? Street { get; set; }
+    public string? City { get; set; }
+    public string? State { get; set; }
+    public string? ZipCode { get; set; }
+    public string? Country { get; set; } 
+    // --- End Address ---
 }

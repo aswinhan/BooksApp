@@ -15,6 +15,9 @@ public class Order : IAuditableEntity
     public Address ShippingAddress { get; private set; } = null!;
     public OrderStatus Status { get; private set; }
     public decimal Total { get; private set; } // Calculated total
+    public PaymentMethod PaymentMethod { get; private set; }
+
+    public string? PaymentIntentId { get; private set; } // Store Stripe Payment Intent ID
 
     // Private field for items, exposed as read-only
     private readonly List<OrderItem> _orderItems = [];
@@ -24,12 +27,14 @@ public class Order : IAuditableEntity
     public string? AppliedCouponCode { get; private set; }
     public decimal DiscountAmount { get; private set; } // Store the calculated discount
     // --- End Coupon ---
+    public decimal TaxAmount { get; private set; } // <-- ADD THIS
+    public decimal ShippingCost { get; private set; } // <-- ADD THIS (store calculated cost)
 
     // Private constructor for EF Core
     private Order() { }
 
     // Public constructor for creating a new Order
-    public Order(Guid id, string userId, Address shippingAddress)
+    public Order(Guid id, string userId, Address shippingAddress, PaymentMethod paymentMethod)
     {
         Id = id;
         UserId = userId;
@@ -37,6 +42,19 @@ public class Order : IAuditableEntity
         Status = OrderStatus.Pending; // Initial status
         Total = 0; // Initial total
         CreatedAtUtc = DateTime.UtcNow;
+        PaymentMethod = paymentMethod;
+    }
+
+    // Add a method to set the PaymentIntentId after creation
+    public void SetPaymentIntentId(string paymentIntentId)
+    {
+        if (string.IsNullOrWhiteSpace(paymentIntentId))
+        {
+            throw new ArgumentException("Payment Intent ID cannot be empty.", nameof(paymentIntentId));
+        }
+        // Can add validation or state checks if needed
+        PaymentIntentId = paymentIntentId;
+        UpdatedAtUtc = DateTime.UtcNow; // Mark as updated
     }
 
     // --- Aggregate Root Business Logic ---
@@ -78,7 +96,17 @@ public class Order : IAuditableEntity
         // Can add validation here if needed, but primary validation is in Discounts module
         AppliedCouponCode = code;
         DiscountAmount = Math.Max(0, discountAmount); // Ensure discount isn't negative
-        RecalculateTotal(); // Update total after applying discount
+        // Shipping/Tax are calculated based on other factors, not directly set by coupon usually
+        RecalculateTotal(); // Let Recalculate handle it
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    // Add method to set calculated totals during checkout
+    public void SetCalculatedAmounts(decimal shippingCost, decimal taxAmount)
+    {
+        ShippingCost = Math.Max(0, shippingCost);
+        TaxAmount = Math.Max(0, taxAmount);
+        RecalculateTotal(); // Final total calculation
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
@@ -140,6 +168,18 @@ public class Order : IAuditableEntity
         return Result.Success;
     }
 
+    public Result<Success> SetStatusToFailed()
+{
+    if (Status != OrderStatus.Pending)
+    {
+        // Still return success or validation error based on your logic
+        return Result.Success; // Or return Error.Validation(...)
+    }
+    Status = OrderStatus.Failed;
+    UpdatedAtUtc = DateTime.UtcNow;
+    return Result.Success;
+}
+
 
     /// <summary>
     /// Recalculates the total based on current items.
@@ -148,8 +188,8 @@ public class Order : IAuditableEntity
     private void RecalculateTotal()
     {
         decimal subtotal = _orderItems.Sum(item => item.Price * item.Quantity);
-        // Ensure total doesn't go below zero
-        Total = Math.Max(0, subtotal - DiscountAmount);
+        // Total = (Subtotal - Discount) + Shipping + Tax
+        Total = Math.Max(0, subtotal - DiscountAmount) + ShippingCost + TaxAmount;
     }
 
     // --- IAuditableEntity ---

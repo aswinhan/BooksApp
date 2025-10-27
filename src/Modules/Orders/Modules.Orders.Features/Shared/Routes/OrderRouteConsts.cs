@@ -20,4 +20,6 @@ internal static class OrderRouteConsts
 
     internal const string ApplyCoupon = CartBaseRoute + "/coupon";    // POST /api/cart/coupon
     internal const string RemoveCoupon = CartBaseRoute + "/coupon";   // DELETE /api/cart/coupon
+
+    internal const string StripeWebhook = "/api/webhooks/stripe";
 }

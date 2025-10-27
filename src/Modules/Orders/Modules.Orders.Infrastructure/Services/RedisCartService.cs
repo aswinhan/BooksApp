@@ -35,9 +35,10 @@ public class RedisCartService(IConnectionMultiplexer redis, IDiscountsModuleApi 
             cart = JsonSerializer.Deserialize<CartDto>(cartData!) ?? new CartDto();
         }
 
-        // --- Calculate Shipping ---
-        cart.ShippingCost = CalculateShippingCost(cart.Subtotal);
-        // --- End Calculate ---
+        cart.DiscountAmount = cart.AppliedCouponCode != null ? cart.DiscountAmount : 0; // Ensure discount is 0 if no code
+        decimal taxableAmount = cart.Subtotal - cart.DiscountAmount;
+        cart.TaxAmount = CalculateTax(taxableAmount); // Calculate Tax
+        cart.ShippingCost = CalculateShippingCost(cart.Subtotal); // Shipping based on subtotal
 
         return cart;
     }
@@ -136,11 +137,11 @@ public class RedisCartService(IConnectionMultiplexer redis, IDiscountsModuleApi 
         cart.AppliedCouponCode = validationResult.Value.Code;
         cart.DiscountAmount = validationResult.Value.DiscountAmount;
 
-        // --- Calculate Shipping ---
-        cart.ShippingCost = CalculateShippingCost(cart.Subtotal); // Base shipping on subtotal BEFORE discount
-        // --- End Calculate ---
+        decimal taxableAmount = cart.Subtotal - cart.DiscountAmount;
+        cart.TaxAmount = CalculateTax(taxableAmount); // Recalculate Tax
+        cart.ShippingCost = CalculateShippingCost(cart.Subtotal); // Recalculate Shipping
 
-       // Save updated cart back to Redis
+        // Save updated cart back to Redis
         var serializedCart = JsonSerializer.Serialize(cart);
         await _database.StringSetAsync(GetCartKey(userId), serializedCart, _cartExpiry);
 
@@ -163,9 +164,9 @@ public class RedisCartService(IConnectionMultiplexer redis, IDiscountsModuleApi 
         cart.AppliedCouponCode = null;
         cart.DiscountAmount = 0m;
 
-        // --- Recalculate Shipping ---
-        cart.ShippingCost = CalculateShippingCost(cart.Subtotal);
-        // --- End Recalculate ---
+        decimal taxableAmount = cart.Subtotal - cart.DiscountAmount; // Discount is now 0
+        cart.TaxAmount = CalculateTax(taxableAmount); // Recalculate Tax
+        cart.ShippingCost = CalculateShippingCost(cart.Subtotal); // Recalculate Shipping
 
         // Save updated cart back to Redis
         var serializedCart = JsonSerializer.Serialize(cart);
@@ -181,5 +182,13 @@ public class RedisCartService(IConnectionMultiplexer redis, IDiscountsModuleApi 
         const decimal freeShippingThreshold = 50.00m;
 
         return subtotal >= freeShippingThreshold ? 0m : shippingRate;
+    }
+
+    // Add Tax calculation helper
+    private static decimal CalculateTax(decimal taxableAmount)
+    {
+        // Simple example: 5% tax on the amount after discount
+        const decimal taxRate = 0.05m;
+        return Math.Max(0, taxableAmount * taxRate); // Ensure tax isn't negative
     }
 }

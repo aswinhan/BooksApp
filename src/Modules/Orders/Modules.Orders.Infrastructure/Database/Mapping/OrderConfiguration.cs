@@ -33,6 +33,21 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
+        builder.Property(o => o.PaymentMethod)
+       .IsRequired()
+       .HasConversion<string>() // Store enum as string
+       .HasMaxLength(50);
+
+        builder.Property(o => o.PaymentIntentId)
+       .HasMaxLength(100); // Allow reasonable length for Stripe IDs
+
+        builder.Property(o => o.TaxAmount)
+               .HasColumnType("decimal(18,2)")
+               .IsRequired();
+        builder.Property(o => o.ShippingCost)
+               .HasColumnType("decimal(18,2)")
+               .IsRequired();
+
         // Configure the one-to-many relationship with OrderItem
         // Map the private '_orderItems' field
         builder.HasMany(o => o.OrderItems) // Order has many OrderItems

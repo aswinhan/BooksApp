@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Modules.Common.Application.Payments;
 using Modules.Common.Infrastructure.Database;
 using Modules.Common.Infrastructure.Policies;
 using Modules.Orders.Domain.Abstractions; // For ICartService
@@ -43,6 +44,8 @@ public static class DependencyInjection
         // Register the Redis implementation for ICartService
         // Assumes IConnectionMultiplexer is registered in Host/Common.Infrastructure
         services.AddScoped<ICartService, RedisCartService>();
+
+        services.AddScoped<IPaymentService, StripePaymentService>();
 
         // Register Repositories or other infrastructure services here later
         // services.AddScoped<IOrderRepository, OrderRepository>();

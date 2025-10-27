@@ -35,5 +35,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         // Configure DisplayName property if needed (e.g., max length)
         builder.Property(u => u.DisplayName).HasMaxLength(256);
+
+        builder.Property(u => u.Street).HasMaxLength(200);
+        builder.Property(u => u.City).HasMaxLength(100);
+        builder.Property(u => u.State).HasMaxLength(100);
+        builder.Property(u => u.ZipCode).HasMaxLength(20);
+        builder.Property(u => u.Country).HasMaxLength(100);
     }
 }

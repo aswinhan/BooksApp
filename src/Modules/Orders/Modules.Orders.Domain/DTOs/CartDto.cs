@@ -11,9 +11,11 @@ public class CartDto
     public decimal DiscountAmount { get; set; }
     public decimal ShippingCost { get; set; }
 
+    public decimal TaxAmount { get; set; }
+
     // Calculated subtotal before discount
     public decimal Subtotal => Items.Sum(i => i.Price * i.Quantity);
 
-    // Final total includes subtotal, discount, and shipping
-    public decimal FinalTotal => (Subtotal - DiscountAmount) + ShippingCost;
+    // Final total includes subtotal, discount, shipping and tax
+    public decimal FinalTotal => (Subtotal - DiscountAmount) + ShippingCost + TaxAmount;
 }

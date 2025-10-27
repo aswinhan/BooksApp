@@ -8,6 +8,7 @@ using Modules.Common.Application; // Required for EventPublisher
 using Modules.Common.Application.Extensions;
 using Modules.Common.Domain.Events;
 using Modules.Orders.Features.InternalApi;
+using Modules.Orders.Features.Webhooks;
 using Modules.Orders.Infrastructure;
 using Modules.Orders.PublicApi;
 
@@ -56,6 +57,13 @@ public static class OrdersModuleRegistration
 
         // Register middleware configurator if needed
         // services.AddSingleton<IModuleMiddlewareConfigurator, OrdersMiddlewareConfigurator>();
+
+        // --- Register Webhook Services ---
+        services.AddScoped<StripeEventHandlerFactory>(); // Factory
+        services.AddScoped<PaymentIntentSucceededHandler>(); // Specific handlers
+        services.AddScoped<PaymentIntentFailedHandler>();
+        // Register other handlers here
+        // --- End Webhook Services ---
 
         return services;
     }
