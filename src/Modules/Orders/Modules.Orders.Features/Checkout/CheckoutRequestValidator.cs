@@ -15,6 +15,12 @@ public class CheckoutRequestValidator : AbstractValidator<CheckoutRequest>
         RuleFor(x => x.PaymentMethod)
             .IsInEnum().WithMessage("Invalid payment method specified.")
             .NotEqual(PaymentMethod.Undefined).WithMessage("Payment method must be selected.");
+
+        // BillingAddress is required ONLY if UseShippingAddressForBilling is false
+        RuleFor(x => x.BillingAddress)
+            .NotNull().WithMessage("Billing address is required when not using shipping address.")
+            .SetValidator(new AddressValidator()!) // Use ! if validator handles null internally
+            .When(x => !x.UseShippingAddressForBilling); // Only apply when flag is false
     }
 }
 

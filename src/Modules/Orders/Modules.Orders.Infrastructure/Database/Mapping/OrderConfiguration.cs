@@ -13,16 +13,26 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.UserId).IsRequired();
 
-        // Configure the owned Address Value Object
+        // Configure Shipping Address
         builder.OwnsOne(o => o.ShippingAddress, addressBuilder =>
         {
-            // Map properties of Address to columns in the Orders table
-            // Naming convention will handle snake_case (e.g., shipping_address_street)
-            addressBuilder.Property(a => a.Street).IsRequired().HasMaxLength(200);
-            addressBuilder.Property(a => a.City).IsRequired().HasMaxLength(100);
-            addressBuilder.Property(a => a.State).IsRequired().HasMaxLength(100);
-            addressBuilder.Property(a => a.ZipCode).IsRequired().HasMaxLength(20);
+            // Explicitly map column names with prefix if using snake case naming convention
+            addressBuilder.Property(a => a.Street).HasColumnName("shipping_street").IsRequired().HasMaxLength(200);
+            addressBuilder.Property(a => a.City).HasColumnName("shipping_city").IsRequired().HasMaxLength(100);
+            addressBuilder.Property(a => a.State).HasColumnName("shipping_state").IsRequired().HasMaxLength(100);
+            addressBuilder.Property(a => a.ZipCode).HasColumnName("shipping_zip_code").IsRequired().HasMaxLength(20);
         });
+
+        // --- ADD Billing Address Configuration ---
+        builder.OwnsOne(o => o.BillingAddress, addressBuilder =>
+        {
+            // Use a different prefix for billing address columns
+            addressBuilder.Property(a => a.Street).HasColumnName("billing_street").IsRequired().HasMaxLength(200);
+            addressBuilder.Property(a => a.City).HasColumnName("billing_city").IsRequired().HasMaxLength(100);
+            addressBuilder.Property(a => a.State).HasColumnName("billing_state").IsRequired().HasMaxLength(100);
+            addressBuilder.Property(a => a.ZipCode).HasColumnName("billing_zip_code").IsRequired().HasMaxLength(20);
+        });
+        // --- End Billing Address ---
 
         builder.Property(o => o.Status)
             .IsRequired()

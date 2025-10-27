@@ -7,6 +7,8 @@ namespace Modules.Orders.Features.Checkout;
 // We only need the shipping address from the user during checkout
 public record CheckoutRequest(
     Address ShippingAddress,
-    PaymentMethod PaymentMethod
+    PaymentMethod PaymentMethod,
+    bool UseShippingAddressForBilling, // Flag to use shipping address
+    Address? BillingAddress // Nullable if flag is true
 // Add PaymentInfo DTO here later if integrating payment gateway
 );

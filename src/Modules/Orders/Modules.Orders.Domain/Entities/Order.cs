@@ -13,6 +13,7 @@ public class Order : IAuditableEntity
     public Guid Id { get; private set; }
     public string UserId { get; private set; } = null!; // Foreign key to User (string)
     public Address ShippingAddress { get; private set; } = null!;
+    public Address BillingAddress { get; private set; } = null!;
     public OrderStatus Status { get; private set; }
     public decimal Total { get; private set; } // Calculated total
     public PaymentMethod PaymentMethod { get; private set; }
@@ -34,11 +35,12 @@ public class Order : IAuditableEntity
     private Order() { }
 
     // Public constructor for creating a new Order
-    public Order(Guid id, string userId, Address shippingAddress, PaymentMethod paymentMethod)
+    public Order(Guid id, string userId, Address shippingAddress, Address billingAddress, PaymentMethod paymentMethod)
     {
         Id = id;
         UserId = userId;
-        ShippingAddress = shippingAddress;
+        ShippingAddress = shippingAddress ?? throw new ArgumentNullException(nameof(shippingAddress));
+        BillingAddress = billingAddress ?? throw new ArgumentNullException(nameof(billingAddress)); // Ensure billing address is provided
         Status = OrderStatus.Pending; // Initial status
         Total = 0; // Initial total
         CreatedAtUtc = DateTime.UtcNow;
@@ -112,14 +114,15 @@ public class Order : IAuditableEntity
 
 
     // Example method to update status (implement other transitions similarly)
-    public void SetStatusToProcessing()
+    public Result<Success> SetStatusToProcessing()
     {
         if (Status != OrderStatus.Pending)
         {
-            throw new InvalidOperationException($"Cannot set status to Processing from {Status}.");
+            return Error.Validation("Orders.InvalidStatusTransition", $"Cannot set status to Processing from {Status}.");
         }
         Status = OrderStatus.Processing;
         UpdatedAtUtc = DateTime.UtcNow;
+        return Result.Success;
     }
 
     // Add methods for Ship(), Deliver(), Cancel() etc. applying status transition rules

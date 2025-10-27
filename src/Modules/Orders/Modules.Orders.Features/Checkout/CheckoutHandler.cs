@@ -17,6 +17,7 @@ using Modules.Inventory.PublicApi.Contracts; // Required for DTOs
 using Modules.Orders.Domain.Abstractions; // Required for ICartService
 using Modules.Orders.Domain.Entities; // Required for Order, OrderItem
 using Modules.Orders.Domain.Enums; // Required for PaymentMethod
+using Modules.Orders.Domain.ValueObjects;
 using Modules.Orders.Infrastructure.Database; // Required for OrdersDbContext
 
 namespace Modules.Orders.Features.Checkout;
@@ -100,8 +101,20 @@ internal sealed class CheckoutHandler(
             }
             // --- End Stock Check ---
 
+            // --- Determine Billing Address ---
+            Address billingAddressToUse;
+            if (request.UseShippingAddressForBilling || request.BillingAddress == null)
+            {
+                billingAddressToUse = request.ShippingAddress; // Use shipping address
+            }
+            else
+            {
+                billingAddressToUse = request.BillingAddress; // Use provided billing address
+            }
+            // --- End Determine Billing ---
+
             // Create Order
-            var order = new Order(Guid.NewGuid(), userId, request.ShippingAddress, request.PaymentMethod);
+            var order = new Order(Guid.NewGuid(), userId, request.ShippingAddress, billingAddressToUse, request.PaymentMethod);
             if (!string.IsNullOrEmpty(paymentIntentId)) { order.SetPaymentIntentId(paymentIntentId); }
 
             // --- Set Initial Status ---
@@ -110,7 +123,15 @@ internal sealed class CheckoutHandler(
             // Move to Processing for COD (assuming stock checked & ready to ship)
             if (request.PaymentMethod == PaymentMethod.CashOnDelivery)
             {
-                order.SetStatusToProcessing(); // Use domain method
+                // Use the domain method to ensure rules are checked
+                var setResult = order.SetStatusToProcessing();
+                if (setResult.IsError)
+                {
+                    // This shouldn't happen if starting from Pending, but handle defensively
+                    logger.LogWarning("Could not set initial status to Processing for COD Order {OrderId}: {Error}", order.Id, setResult.FirstError.Description);
+                    await transaction.RollbackAsync(cancellationToken);
+                    return setResult.Errors!; // Return the domain error
+                }
                 logger.LogInformation("Setting initial status to Processing for COD Order {OrderId}", order.Id);
             }
             // else it stays Pending from constructor

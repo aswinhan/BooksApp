@@ -7,6 +7,7 @@ internal static class RouteConsts
 
     // Specific endpoint paths
     internal const string GetMyProfile = $"{BaseRoute}/me";
+    internal const string UpdateMyProfile = $"{BaseRoute}/me";
     internal const string GetById = $"{BaseRoute}/{{userId}}"; // e.g., /api/users/guid-guid-guid
     internal const string Login = $"{BaseRoute}/login";
     internal const string Register = $"{BaseRoute}/register";
