@@ -57,6 +57,9 @@ internal sealed class CreateAuthorHandler(
             author.Id,
             author.Name,
             author.Biography,
+            0, // BookCount (new author has 0 books)
+            0, // TotalSales (new author has 0 sales)
+            0, // TotalReviews (new author has 0 reviews)
             author.CreatedAtUtc,
             author.UpdatedAtUtc
         );

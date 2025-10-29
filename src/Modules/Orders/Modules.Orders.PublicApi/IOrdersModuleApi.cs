@@ -15,4 +15,10 @@ public interface IOrdersModuleApi
     /// </summary>
     Task<Result<CheckPurchaseResponse>> CheckIfUserPurchasedBookAsync(
         CheckPurchaseRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the total quantity of completed sales for a specific list of book IDs.
+    /// </summary>
+    Task<Result<int>> GetSalesCountForBooksAsync(
+        GetSalesCountForBooksRequest request, CancellationToken cancellationToken);
 }

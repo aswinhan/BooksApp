@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Modules\Catalog\Modules.Catalog.Features\Modules.Catalog.Features.csproj" />
     <ProjectReference Include="..\Modules\Discounts\Modules.Discounts.Features\Modules.Discounts.Features.csproj" />
     <ProjectReference Include="..\Modules\Inventory\Modules.Inventory.Features\Modules.Inventory.Features.csproj" />
+    <ProjectReference Include="..\Modules\Notifications\Modules.Notifications.Features\Modules.Notifications.Features.csproj" />
     <ProjectReference Include="..\Modules\Orders\Modules.Orders.Features\Modules.Orders.Features.csproj" />
     <ProjectReference Include="..\Modules\Users\Modules.Users.Features\Modules.Users.Features.csproj" />
   </ItemGroup>

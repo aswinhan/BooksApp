@@ -43,7 +43,14 @@ internal sealed class UpdateAuthorHandler(
         logger.LogInformation("Successfully updated author with ID: {AuthorId}", authorId);
 
         var response = new AuthorResponse(
-            author.Id, author.Name, author.Biography, author.CreatedAtUtc, author.UpdatedAtUtc
+            author.Id,
+            author.Name,
+            author.Biography,
+            0, // Placeholder BookCount (fetch/recalculate if needed)
+            0, // Placeholder TotalSales (fetch/recalculate if needed)
+            0, // Placeholder TotalReviews (fetch/recalculate if needed)
+            author.CreatedAtUtc,
+            author.UpdatedAtUtc
         );
 
         return response;

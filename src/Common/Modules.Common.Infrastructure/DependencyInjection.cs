@@ -1,18 +1,20 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration; // For IConfiguration
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Modules.Common.Application.Caching;
+using Modules.Common.Application.Email;
+using Modules.Common.Infrastructure.Caching;
 using Modules.Common.Infrastructure.Configuration;
+using Modules.Common.Infrastructure.Email;
 using Modules.Common.Infrastructure.Policies;
 using Npgsql; // For Npgsql OpenTelemetry
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System;
-using Microsoft.Extensions.DependencyInjection;
-using Modules.Common.Application.Caching;
-using Modules.Common.Infrastructure.Caching;
+using System.Text;
 
 
 // Put extensions into the global Microsoft namespace for easy discovery
@@ -38,6 +40,13 @@ public static class DependencyInjection
 
         // Register the AuditableInterceptor as a singleton
         services.AddSingleton<Database.AuditableInterceptor>();
+
+        // --- ADD Email Services ---
+        // Bind SmtpSettings from appsettings.json to the record
+        services.Configure<SmtpSettings>(configuration.GetSection(SmtpSettings.SectionName));
+        // Register the service implementation
+        services.AddScoped<IEmailService, MailKitEmailService>();
+        // --- End Email Services ---
 
         // Register Caching Service
         services.AddSingleton<ICachingService, RedisCachingService>();

@@ -33,6 +33,9 @@ internal sealed class GetAuthorsListHandler(
                     a.Id,
                     a.Name,
                     a.Biography,
+                    0, // Placeholder BookCount (could calculate with Include(a=>a.Books).Count() but less efficient)
+                    0, // Placeholder TotalSales
+                    0, // Placeholder TotalReviews
                     a.CreatedAtUtc,
                     a.UpdatedAtUtc
                 ))

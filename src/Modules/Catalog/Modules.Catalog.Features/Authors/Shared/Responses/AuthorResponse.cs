@@ -7,6 +7,9 @@ public record AuthorResponse(
     Guid Id,
     string Name,
     string? Biography,
+    int BookCount,
+    int TotalSales,
+    int TotalReviews,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc
 );

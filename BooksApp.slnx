@@ -36,6 +36,12 @@
     <Project Path="src/Modules/Inventory/Modules.Inventory.Infrastructure/Modules.Inventory.Infrastructure.csproj" Id="63f80d85-a058-4633-b46c-74956ba9ce27" />
     <Project Path="src/Modules/Inventory/Modules.Inventory.PublicApi/Modules.Inventory.PublicApi.csproj" Id="2aa376a1-c44f-40ba-a7bc-fbe1058850ad" />
   </Folder>
+  <Folder Name="/Src/Modules/Notifications/">
+    <Project Path="src/Modules/Notifications/Modules.Notifications.Domain/Modules.Notifications.Domain.csproj" Id="a858311d-fd83-4d86-bd46-f4e339840773" />
+    <Project Path="src/Modules/Notifications/Modules.Notifications.Features/Modules.Notifications.Features.csproj" Id="72b2f541-9f3a-4e1b-b361-d9393638de7b" />
+    <Project Path="src/Modules/Notifications/Modules.Notifications.Infrastructure/Modules.Notifications.Infrastructure.csproj" Id="06aa9612-4609-42dc-8b8a-231bdfe28eb8" />
+    <Project Path="src/Modules/Notifications/Modules.Notifications.PublicApi/Modules.Notifications.PublicApi.csproj" Id="09c24239-9e5c-4c21-8186-932c80e03b15" />
+  </Folder>
   <Folder Name="/Src/Modules/Orders/">
     <Project Path="src/Modules/Orders/Modules.Orders.Domain/Modules.Orders.Domain.csproj" Id="f3b60dbe-adb3-4d00-bea8-fa29c65e98a9" />
     <Project Path="src/Modules/Orders/Modules.Orders.Features/Modules.Orders.Features.csproj" Id="47f63848-bb7f-444d-9c40-25b367d17879" />
