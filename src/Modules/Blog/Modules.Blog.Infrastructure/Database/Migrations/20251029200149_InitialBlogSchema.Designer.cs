@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Modules.Blog.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20251029195212_AddBlogCategoriesAndTags")]
-    partial class AddBlogCategoriesAndTags
+    [Migration("20251029200149_InitialBlogSchema")]
+    partial class InitialBlogSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

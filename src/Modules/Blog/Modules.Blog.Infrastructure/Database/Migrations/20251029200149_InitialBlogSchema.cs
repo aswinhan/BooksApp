@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Modules.Blog.Infrastructure.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBlogCategoriesAndTags : Migration
+    public partial class InitialBlogSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
