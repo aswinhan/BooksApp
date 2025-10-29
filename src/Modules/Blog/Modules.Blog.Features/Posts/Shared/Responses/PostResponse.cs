@@ -12,6 +12,8 @@ public record PostResponse(
     string Slug,
     bool IsPublished,
     DateTime? PublishedAtUtc,
+    Guid BlogCategoryId,
+    List<string> Tags,
     List<CommentResponse> Comments, // Include comments
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc

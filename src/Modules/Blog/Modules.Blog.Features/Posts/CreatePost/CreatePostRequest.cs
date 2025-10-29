@@ -3,5 +3,6 @@
 public record CreatePostRequest(
     string Title,
     string Content,
-    string Slug // Allow user to suggest slug, or generate in handler
+    string Slug,
+    Guid BlogCategoryId
 );

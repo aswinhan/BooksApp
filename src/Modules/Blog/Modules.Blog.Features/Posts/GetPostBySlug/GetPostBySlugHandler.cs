@@ -45,6 +45,8 @@ internal sealed class GetPostBySlugHandler(
             post.Slug,
             post.IsPublished,
             post.PublishedAtUtc,
+            post.BlogCategoryId,
+                post.Tags.Select(t => t.Name).ToList(),
             post.Comments.Select(c => new CommentResponse( // Map included comments
                 c.Id,
                 c.PostId, // Often redundant here but complete

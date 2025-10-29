@@ -39,13 +39,21 @@ internal sealed class CreatePostHandler(
             return Error.Conflict("Blog.SlugExists", $"The slug '{slug}' is already in use.");
         }
 
+        var categoryExists = await dbContext.BlogCategories.AnyAsync(c => c.Id == request.BlogCategoryId, cancellationToken);
+        if (!categoryExists)
+        {
+            logger.LogWarning("Create post failed: Category {CategoryId} not found.", request.BlogCategoryId);
+            return Error.NotFound("Blog.CategoryNotFound", $"Category {request.BlogCategoryId} not found.");
+        }
+
         var post = new Post(
             Guid.NewGuid(),
             request.Title,
             request.Content,
             authorId,
             authorName, // Store denormalized name
-            slug
+            slug,
+            request.BlogCategoryId
         );
 
         await dbContext.Posts.AddAsync(post, cancellationToken);
@@ -55,10 +63,20 @@ internal sealed class CreatePostHandler(
 
         // Map to Response DTO
         var response = new PostResponse(
-             post.Id, post.Title, post.Content, post.AuthorId, post.AuthorName, post.Slug,
-             post.IsPublished, post.PublishedAtUtc, [], // Empty comments list
-             post.CreatedAtUtc, post.UpdatedAtUtc
-         );
+                 post.Id,
+                 post.Title,
+                 post.Content,
+                 post.AuthorId,
+                 post.AuthorName,
+                 post.Slug,
+                 post.IsPublished,
+                 post.PublishedAtUtc,
+                 post.BlogCategoryId,
+                 post.Tags.Select(t => t.Name).ToList(),
+                 [], // New post has no comments
+                 post.CreatedAtUtc,
+                 post.UpdatedAtUtc 
+             );
 
         return response;
     }

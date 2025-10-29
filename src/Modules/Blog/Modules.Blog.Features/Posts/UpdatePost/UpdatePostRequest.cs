@@ -4,5 +4,6 @@
 public record UpdatePostRequest(
     string Title,
     string Content,
-    string Slug // Allow updating the slug
+    string Slug,
+    Guid BlogCategoryId
 );

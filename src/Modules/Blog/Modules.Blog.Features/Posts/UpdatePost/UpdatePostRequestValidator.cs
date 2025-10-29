@@ -14,6 +14,8 @@ public class UpdatePostRequestValidator : AbstractValidator<UpdatePostRequest>
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("Content is required.");
 
+        RuleFor(x => x.BlogCategoryId).NotEmpty().WithMessage("Category ID is required.");
+
         RuleFor(x => x.Slug)
             .NotEmpty().WithMessage("Slug is required.")
             .MaximumLength(250).WithMessage("Slug cannot exceed 250 characters.")

@@ -16,6 +16,15 @@ public class Post : IAuditableEntity
     public bool IsPublished { get; private set; }
     public DateTime? PublishedAtUtc { get; private set; }
 
+    // --- ADD Category (One-to-Many) ---
+    public Guid BlogCategoryId { get; private set; }
+    public BlogCategory BlogCategory { get; private set; } = null!;
+    // --- End Category ---
+
+    // --- ADD Tags (Many-to-Many) ---
+    public ICollection<Tag> Tags { get; private set; } = [];
+    // --- End Tags ---
+
     // Private field for comments, exposed read-only
     private readonly List<Comment> _comments = [];
     public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
@@ -24,7 +33,7 @@ public class Post : IAuditableEntity
     private Post() { }
 
     // Public constructor for creating a new Post
-    public Post(Guid id, string title, string content, string authorId, string authorName, string slug)
+    public Post(Guid id, string title, string content, string authorId, string authorName, string slug, Guid blogCategoryId)
     {
         // Add validation
         if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Title cannot be empty.", nameof(title));
@@ -38,6 +47,7 @@ public class Post : IAuditableEntity
         AuthorId = authorId;
         AuthorName = authorName; // Denormalized
         Slug = slug; // Consider ensuring uniqueness
+        BlogCategoryId = blogCategoryId;
         IsPublished = false; // Draft by default
         PublishedAtUtc = null;
         CreatedAtUtc = DateTime.UtcNow;
@@ -45,7 +55,7 @@ public class Post : IAuditableEntity
 
     // --- Aggregate Root Business Logic ---
 
-    public void Update(string title, string content, string slug)
+    public void Update(string title, string content, string slug, Guid blogCategoryId)
     {
         if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Title cannot be empty.", nameof(title));
         if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("Content cannot be empty.", nameof(content));
@@ -54,6 +64,15 @@ public class Post : IAuditableEntity
         Title = title;
         Content = content;
         Slug = slug;
+        BlogCategoryId = blogCategoryId;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    // --- ADD Methods to manage Tags ---
+    public void SetTags(List<Tag> tags)
+    {
+        Tags.Clear();
+        Tags = tags; // EF Core will manage the join table
         UpdatedAtUtc = DateTime.UtcNow;
     }
 

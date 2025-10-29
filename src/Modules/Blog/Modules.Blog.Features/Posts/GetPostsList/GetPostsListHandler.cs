@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Modules.Blog.Domain.Entities;
 using Modules.Blog.Features.Posts.Shared.Responses; // Use PostSummaryResponse
 using Modules.Blog.Infrastructure.Database;
 using Modules.Common.Application.Pagination;
@@ -15,7 +16,8 @@ namespace Modules.Blog.Features.Posts.GetPostsList;
 internal interface IGetPostsListHandler : IHandler
 {
     Task<Result<PaginatedResponse<PostSummaryResponse>>> HandleAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken);
+        int pageNumber, int pageSize, string? categorySlug, string? tagSlug, string? searchQuery,
+        CancellationToken cancellationToken);
 }
 
 internal sealed class GetPostsListHandler(
@@ -24,7 +26,8 @@ internal sealed class GetPostsListHandler(
     : IGetPostsListHandler
 {
     public async Task<Result<PaginatedResponse<PostSummaryResponse>>> HandleAsync(
-    int pageNumber, int pageSize, CancellationToken cancellationToken)
+    int pageNumber, int pageSize, string? categorySlug, string? tagSlug, string? searchQuery,
+    CancellationToken cancellationToken)
     {
         logger.LogInformation("Retrieving posts list - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
 
@@ -32,27 +35,43 @@ internal sealed class GetPostsListHandler(
         pageSize = Math.Clamp(pageSize, 5, 50); // Min 5, Max 50
         try
         {
-            var query = dbContext.Posts
+            IQueryable<Post> query = dbContext.Posts
                 .AsNoTracking()
-                .Where(p => p.IsPublished) // Keep filter
-                .OrderByDescending(p => p.PublishedAtUtc ?? p.CreatedAtUtc); // Keep sort
+                .Where(p => p.IsPublished); // Only show published
 
+            // --- Apply Filtering ---
+            if (!string.IsNullOrWhiteSpace(categorySlug))
+            {
+                query = query.Where(p => p.BlogCategory.Slug == categorySlug);
+            }
+            if (!string.IsNullOrWhiteSpace(tagSlug))
+            {
+                query = query.Where(p => p.Tags.Any(t => t.Slug == tagSlug)); // Filter by tag
+            }
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                string searchTerm = $"%{searchQuery.Trim()}%";
+                query = query.Where(p => EF.Functions.ILike(p.Title, searchTerm) ||
+                                         EF.Functions.ILike(p.Content, searchTerm));
+            }
+            // --- End Filtering ---
+
+            query = query.OrderByDescending(p => p.PublishedAtUtc ?? p.CreatedAtUtc); // Default sort
+
+            // --- Get Count and Paginate ---
             int totalCount = await query.CountAsync(cancellationToken);
-
             var posts = await query
-                .Skip((pageNumber - 1) * pageSize) // Apply pagination
-                .Take(pageSize) // Apply pagination
-                .Select(p => new PostSummaryResponse(
-                    p.Id, p.Title, p.Slug, p.AuthorName, p.CreatedAtUtc, p.PublishedAtUtc, p.IsPublished
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new PostSummaryResponse( // Project to DTO
+                    p.Id, p.Title, p.Slug, p.AuthorName,
+                    p.CreatedAtUtc, p.PublishedAtUtc, p.IsPublished
                 ))
                 .ToListAsync(cancellationToken);
-
-            logger.LogInformation("Retrieved {Count} posts for page {PageNumber}.", posts.Count, pageNumber);
 
             var paginatedResponse = new PaginatedResponse<PostSummaryResponse>(
                 posts, totalCount, pageNumber, pageSize
             );
-
             return paginatedResponse;
         }
         catch (Exception ex)

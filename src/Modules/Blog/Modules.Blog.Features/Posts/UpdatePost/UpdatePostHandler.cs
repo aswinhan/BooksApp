@@ -60,10 +60,12 @@ internal sealed class UpdatePostHandler(
         }
 
 
+
+
         // 4. Execute the Domain Logic via the Aggregate Root
         try
         {
-            post.Update(request.Title, request.Content, newSlug);
+            post.Update(request.Title, request.Content, newSlug, request.BlogCategoryId); 
         }
         catch (ArgumentException ex) // Catch validation errors from domain
         {
@@ -85,6 +87,8 @@ internal sealed class UpdatePostHandler(
         var response = new PostResponse(
              post.Id, post.Title, post.Content, post.AuthorId, post.AuthorName, post.Slug,
              post.IsPublished, post.PublishedAtUtc,
+             post.BlogCategoryId,
+             post.Tags.Select(t => t.Name).ToList(),
              post.Comments.Select(c => new CommentResponse( // Map existing comments
                  c.Id, c.PostId, c.AuthorId, c.AuthorName, c.Content, c.CreatedAtUtc
              )).ToList(),

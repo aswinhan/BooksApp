@@ -30,11 +30,16 @@ public class GetPostsListEndpoint : IApiEndpoint
         IGetPostsListHandler handler,
         CancellationToken cancellationToken,
         [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10)
-        
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? category = null,
+    [FromQuery] string? tag = null,  
+    [FromQuery] string? search = null) 
+
+
+
     {
         // Pass parameters to handler
-        var response = await handler.HandleAsync(pageNumber, pageSize, cancellationToken);
+        var response = await handler.HandleAsync(pageNumber, pageSize, category, tag, search, cancellationToken);
 
         if (response.IsError)
         {
