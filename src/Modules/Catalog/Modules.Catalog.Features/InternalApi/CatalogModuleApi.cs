@@ -30,7 +30,9 @@ internal sealed class CatalogModuleApi(
         var bookDetailsDto = new BookDetailsDto(
             bookResponse!.Id,
             bookResponse.Title,
-            bookResponse.Price
+            bookResponse.Price,
+            bookResponse.AuthorName,    // <-- PASS THE VALUE
+            bookResponse.CoverImageUrl
         );
 
         // 4. Return the successful DTO

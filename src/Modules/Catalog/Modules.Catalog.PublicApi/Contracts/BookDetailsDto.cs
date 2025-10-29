@@ -4,6 +4,8 @@
 public record BookDetailsDto(
     Guid Id,
     string Title,
-    decimal Price
+    decimal Price,
+    string AuthorName,
+    string? CoverImageUrl
 // Add other properties needed by other modules, e.g., Isbn
 );

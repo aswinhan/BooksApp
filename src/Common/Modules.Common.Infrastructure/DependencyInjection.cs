@@ -6,10 +6,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Modules.Common.Application.Caching;
 using Modules.Common.Application.Email;
+using Modules.Common.Application.Storage;
 using Modules.Common.Infrastructure.Caching;
 using Modules.Common.Infrastructure.Configuration;
 using Modules.Common.Infrastructure.Email;
 using Modules.Common.Infrastructure.Policies;
+using Modules.Common.Infrastructure.Storage;
 using Npgsql; // For Npgsql OpenTelemetry
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -47,6 +49,12 @@ public static class DependencyInjection
         // Register the service implementation
         services.AddScoped<IEmailService, MailKitEmailService>();
         // --- End Email Services ---
+
+        // --- ADD File Storage Services ---
+        services.Configure<FileStorageSettings>(configuration.GetSection(FileStorageSettings.SectionName));
+        // Register Local Storage (can swap later with AddAzureBlobStorage etc.)
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        // --- End File Storage ---
 
         // Register Caching Service
         services.AddSingleton<ICachingService, RedisCachingService>();

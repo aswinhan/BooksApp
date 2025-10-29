@@ -11,6 +11,7 @@ using Modules.Inventory.Features;
 using Modules.Notifications.Features;
 using Modules.Orders.Features;
 using Modules.Users.Features;
+using Modules.Wishlist.Features;
 using Serilog;
 using StackExchange.Redis;
 
@@ -24,7 +25,7 @@ try
     var configuration = builder.Configuration;
 
     services.AddCoreWebApiInfrastructure();
-    services.AddCoreInfrastructure(configuration, ["Users", "Catalog", "Orders", "Blog", "Inventory", "Discounts", "Notifications"]);
+    services.AddCoreInfrastructure(configuration, ["Users", "Catalog", "Orders", "Blog", "Inventory", "Discounts", "Notifications", "Wishlist"]);
     services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(configuration.GetConnectionString("RedisConnection")
         ?? throw new InvalidOperationException("Redis connection string 'RedisConnection' not found.")));
@@ -36,6 +37,7 @@ try
     services.AddInventoryModule(configuration);
     services.AddDiscountsModule(configuration);
     services.AddNotificationsModule(configuration);
+    services.AddWishlistModule(configuration);
 
     services.AddScoped<CatalogSeedService>();
     services.AddScoped<BlogSeedService>();
@@ -54,6 +56,7 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseStaticFiles();
     // app.UseCors("_myAllowSpecificOrigins"); // Uncomment if needed
 
     app.UseAuthentication();

@@ -30,6 +30,7 @@
     <ProjectReference Include="..\Modules\Notifications\Modules.Notifications.Features\Modules.Notifications.Features.csproj" />
     <ProjectReference Include="..\Modules\Orders\Modules.Orders.Features\Modules.Orders.Features.csproj" />
     <ProjectReference Include="..\Modules\Users\Modules.Users.Features\Modules.Users.Features.csproj" />
+    <ProjectReference Include="..\Modules\Wishlist\Modules.Wishlist.Features\Modules.Wishlist.Features.csproj" />
   </ItemGroup>
 
 </Project>

@@ -54,4 +54,10 @@
     <Project Path="src/Modules/Users/Modules.Users.Infrastructure/Modules.Users.Infrastructure.csproj" />
     <Project Path="src/Modules/Users/Modules.Users.PublicApi/Modules.Users.PublicApi.csproj" />
   </Folder>
+  <Folder Name="/Src/Modules/Wishlist/">
+    <Project Path="src/Modules/Wishlist/Modules.Wishlist.Domain/Modules.Wishlist.Domain.csproj" Id="cff77d16-bc79-4777-b323-49776fcc0f80" />
+    <Project Path="src/Modules/Wishlist/Modules.Wishlist.Features/Modules.Wishlist.Features.csproj" Id="5e70463f-35c7-4092-b13f-21e0a1c5cece" />
+    <Project Path="src/Modules/Wishlist/Modules.Wishlist.Infrastructure/Modules.Wishlist.Infrastructure.csproj" Id="e593f2f4-7d26-4dc3-b46e-040871731425" />
+    <Project Path="src/Modules/Wishlist/Modules.Wishlist.PublicApi/Modules.Wishlist.PublicApi.csproj" Id="5d9e599e-4235-475a-b0a6-f1df2f0d8164" />
+  </Folder>
 </Solution>
