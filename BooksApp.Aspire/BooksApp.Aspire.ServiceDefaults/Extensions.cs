@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
-namespace Microsoft.Extensions.Hosting
+namespace BooksApp.Aspire.ServiceDefaults
 {
     // Adds common Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
     // This project should be referenced by each service project in your solution.
@@ -84,15 +86,25 @@ namespace Microsoft.Extensions.Hosting
 
             if (useOtlpExporter)
             {
-                builder.Services.AddOpenTelemetry().UseOtlpExporter();
+                // ---------------------------------------------------------------------------------
+                // FIX: We manually add the OTLP exporter to EACH signal (Tracing, Metrics, Logging).
+                // This prevents the "NotSupportedException" caused by mixing "UseOtlpExporter"
+                // with other internal calls.
+                // ---------------------------------------------------------------------------------
+
+                builder.Services.AddOpenTelemetry()
+                    .WithMetrics(metrics => metrics.AddOtlpExporter())  // Add to Metrics
+                    .WithTracing(tracing => tracing.AddOtlpExporter()); // Add to Tracing
+
+                // Add to Logging
+                builder.Logging.AddOpenTelemetry(logging => logging.AddOtlpExporter());
             }
 
-            // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-            //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-            //{
-            //    builder.Services.AddOpenTelemetry()
-            //       .UseAzureMonitor();
-            //}
+            // Uncomment if you use Azure Monitor later
+            // if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+            // {
+            //     builder.Services.AddOpenTelemetry().UseAzureMonitor();
+            // }
 
             return builder;
         }

@@ -1,3 +1,4 @@
+using BooksApp.Aspire.ServiceDefaults;
 using BooksApp.Host.Seeding; // <-- Add using for seeding services
 using Microsoft.EntityFrameworkCore;
 using Modules.Blog.Features;
@@ -18,6 +19,8 @@ using StackExchange.Redis;
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+
+    builder.AddServiceDefaults();
 
     builder.AddCoreHostLogging();
 
@@ -43,6 +46,18 @@ try
     services.AddScoped<BlogSeedService>();
     services.AddScoped<UserSeedService>();
 
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:5174") // Vite's default port
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Important if you use Cookies/Auth tokens later
+        });
+    });
+
     var app = builder.Build();
 
     // --- Configure Middleware Pipeline ---
@@ -57,7 +72,9 @@ try
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();
-    // app.UseCors("_myAllowSpecificOrigins"); // Uncomment if needed
+
+    app.UseRouting();
+    app.UseCors();
 
     app.UseAuthentication();
     app.UseAuthorization();

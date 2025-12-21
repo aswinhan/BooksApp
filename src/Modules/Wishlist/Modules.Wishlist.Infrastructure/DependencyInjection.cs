@@ -13,7 +13,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddWishlistInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Postgres");
+        // Matches the .AddDatabase("booksappdb") in AppHost
+        var connectionString = configuration.GetConnectionString("booksappdb"); // Use the main connection string
+
+        // Safety check (Optional but good for debugging)
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Could not find connection string 'booksappdb'");
+        }
 
         services.AddDbContext<WishlistDbContext>((sp, opt) => {
             var interceptor = sp.GetRequiredService<AuditableInterceptor>();

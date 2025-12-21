@@ -20,7 +20,14 @@ public static class DependencyInjection
     /// </summary>
     public static IServiceCollection AddOrdersInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Postgres");
+        // Matches the .AddDatabase("booksappdb") in AppHost
+        var connectionString = configuration.GetConnectionString("booksappdb"); // Use the main connection string
+
+        // Safety check (Optional but good for debugging)
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Could not find connection string 'booksappdb'");
+        }
 
         // Add the DbContext specific to this module
         services.AddDbContext<OrdersDbContext>((serviceProvider, options) =>
