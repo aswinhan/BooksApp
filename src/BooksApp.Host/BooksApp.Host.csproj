@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BooksApp.Aspire\BooksApp.Aspire.ServiceDefaults\BooksApp.Aspire.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Common\Modules.Common.API\Modules.Common.API.csproj" />
     <ProjectReference Include="..\Common\Modules.Common.Application\Modules.Common.Application.csproj" />
     <ProjectReference Include="..\Common\Modules.Common.Infrastructure\Modules.Common.Infrastructure.csproj" />

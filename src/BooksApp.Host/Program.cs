@@ -108,3 +108,5 @@ finally
     Log.Information("Shutting down BooksApp.Host...");
     Log.CloseAndFlush();
 }
+
+public partial class Program { } // Exposes Program class for testing

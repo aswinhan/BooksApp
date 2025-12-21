@@ -9,6 +9,10 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
+	
+	<ItemGroup>
+		<InternalsVisibleTo Include="BooksApp.Tests.Integration" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
