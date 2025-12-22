@@ -51,7 +51,7 @@ try
     {
         options.AddDefaultPolicy(policy =>
         {
-            policy.WithOrigins("http://localhost:5174") // Vite's default port
+            policy.WithOrigins("http://localhost:5173") // Vite's default port
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); // Important if you use Cookies/Auth tokens later
