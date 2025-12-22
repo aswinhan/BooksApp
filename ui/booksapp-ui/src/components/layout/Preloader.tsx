@@ -7,7 +7,7 @@ const Preloader = () => {
         // Simulating the jQuery window.load event
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 1000); // Adjust time or bind to actual window load
+        }, 1500); // Adjust time or bind to actual window load
 
         return () => clearTimeout(timer);
     }, []);
@@ -25,7 +25,7 @@ const Preloader = () => {
                         </span>
                     ))}
                 </div>
-                <p className="text-center">Loading</p>
+                <p className="text-center">Thinking...</p>
             </div>
             <div className="loader">
                 <div className="row">
