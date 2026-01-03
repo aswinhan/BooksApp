@@ -56,7 +56,7 @@ public class ClientAuthorizationService(
         logger.LogInformation("Login successful for email: {Email}, generating tokens...", email);
         var (token, refreshToken) = await GenerateJwtAndRefreshTokenAsync(user, null, cancellationToken);
 
-        return new LoginUserResponse(token, refreshToken);
+        return new LoginUserResponse(token, refreshToken, DisplayName: user.DisplayName ?? "User");
     }
 
     // --- Refresh Token ---

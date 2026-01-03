@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 interface HeaderProps {
   onOpenOffcanvas: () => void;
 }
 
 const Header = ({ onOpenOffcanvas }: HeaderProps) => {
+  const { user, isAuthenticated, logout } = useAuth();
+
   const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {
@@ -148,16 +151,22 @@ const Header = ({ onOpenOffcanvas }: HeaderProps) => {
               </li>
             </ul>
             <ul className="list">
-              <li>
-                <i className="fa-light fa-comments"></i>
-                <Link to="/contact">Live Chat</Link>
-              </li>
-              <li>
-                <i className="fa-light fa-user"></i>
-                <button data-bs-toggle="modal" data-bs-target="#loginModal">
-                  Login
-                </button>
-              </li>
+              {isAuthenticated && user ? (
+                <li className="d-flex align-items-center gap-3">
+                    <span className="text-white">Hi, {user.displayName}</span>
+                  <button onClick={logout}>
+                    <i className="fa-regular fa-power-off"></i>
+                  </button>
+                </li>
+              ) : (
+                <li>
+                  
+                  <button data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i className="fa-regular fa-user"></i>
+                    Login
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

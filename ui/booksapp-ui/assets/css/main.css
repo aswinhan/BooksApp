@@ -1018,6 +1018,7 @@ span {
   border-bottom: 1px solid #E5E5E5;
   width: 100%;
   margin: 5px 0;
+  color: #012E4A;
 }
 .modal-dialog .modal-content .modal-body .identityBox .form-wrapper h1 {
   color: #012E4A;
@@ -2311,8 +2312,8 @@ span {
   position: absolute;
   top: -1%;
   left: -3%;
-  width: 458px;
-  height: 177px;
+  width: 459px;
+  height: 175px;
   z-index: 2;
   border-radius: 0px 100px 0px 0px;
   background-color: var(--header);
@@ -2350,7 +2351,7 @@ span {
   top: -1%;
   left: -3%;
   width: 470px;
-  height: 177px;
+  height: 174px;
   z-index: 1;
   border-radius: 0px 100px 0px 0px;
   background: var(--white);
@@ -3465,7 +3466,7 @@ span {
   position: relative;
   overflow: hidden;
   background: #E6EFF2;
-  padding: 173px 0;
+  padding: 110px 0;
 }
 .breadcrumb-wrapper .book1 {
   position: absolute;
